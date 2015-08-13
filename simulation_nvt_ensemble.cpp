@@ -127,7 +127,7 @@ namespace TetrahedralParticlesInConfinement{
     }
     
     
-    std::map<int,move_info> SimulationNVTEnsemble::getMoveInfoMap(){
+    std::map<int,move_info>& SimulationNVTEnsemble::getMoveInfoMap(){
         return _move_info_map;
     }
     

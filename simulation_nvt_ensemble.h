@@ -18,6 +18,7 @@
 
 //question save config with static keyword
 //using function pointers or templates, i need to think.. we can compute
+//write out production or equilibrating depending on setEquilibrate
 
 namespace TetrahedralParticlesInConfinement{
     class SimulationNVTEnsemble : public Simulation {
@@ -41,7 +42,7 @@ namespace TetrahedralParticlesInConfinement{
         double getDensity();
         double getVolume();
         coord_list_t& getFullColloidListCoord();
-        std::map<int,move_info> getMoveInfoMap();
+        std::map<int,move_info>& getMoveInfoMap();
         
         
         void run(int);
