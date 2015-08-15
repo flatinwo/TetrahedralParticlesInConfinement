@@ -45,7 +45,7 @@ namespace TetrahedralParticlesInConfinement {
         return hamilton_product(q1, q2);
     }
     
-    double cosine_angle(coord_t& x1, coord_t& x2){
+    double cosine_angle(const coord_t& x1, const coord_t& x2){
         
         double cosphi = 0.;
         coord_t x1t = x1;
