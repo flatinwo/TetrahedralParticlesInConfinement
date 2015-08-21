@@ -38,7 +38,7 @@ namespace TetrahedralParticlesInConfinement {
     //update trajectories of total system
     void translate(coord_list_t& x, Box& box, move_info& translate_info){
         
-        for (int i=0;x.size();i++){
+        for (int i=0;i<x.size();i++){
             translate(x[i],box,translate_info);
         }
     }

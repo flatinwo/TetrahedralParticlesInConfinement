@@ -209,7 +209,7 @@ namespace TetrahedralParticlesInConfinement {
                 }
             }
         }
-        neighbor_info.built = false;
+        //neighbor_info.built = false;
         
         return e;
         
@@ -249,6 +249,7 @@ namespace TetrahedralParticlesInConfinement {
                                     pair_info& pair_info,
                                     NeighborList_t& neighbor_list,
                                     neighbor_list_info& neighbor_info){
+        
         if (!neighbor_info.built || !neighbor_info.full_neighbor_list) {//or rebuild frequency
             neighbor_info.full_neighbor_list = true;
             coord_list_t x = molecule_list.getFullColloidListCoord();
@@ -275,6 +276,73 @@ namespace TetrahedralParticlesInConfinement {
         return e;
         
     }
+    
+    
+#pragma COMPUTE ENERGY WITHOUT NEIGHBOR LISTS
+    
+    //energy between particle i and system
+    double compute_pair_energy(int index, MoleculeList& molecule_list,
+                               Box& box, pair_info& pair_info){
+        
+        double e = 0.;
+        
+        for (unsigned int j=0; j<molecule_list.full_colloid_list.size(); j++) {
+            if (j!=index)
+                e += compute_pair_energy(*(molecule_list.full_colloid_list[index]),*(molecule_list.full_colloid_list[j]),
+                                         box, pair_info);
+            if (pair_info.overlap) {
+                return ((double) BIG_NUM);
+            }
+        }
+        return e;
+        
+    }
+    
+    //energy between molecule i and system
+    double compute_pair_molecule_energy(int index0,
+                                        MoleculeList& molecule_list,
+                                        Box& box,
+                                        pair_info& pair_info){
+        
+        double e = 0.;
+        int dim = (int) molecule_list.molecule_list[index0].colloid_list.size();
+        
+        for (unsigned int i=1; i < dim; i++){
+            int index = dim*index0 + i;
+            for (unsigned int j=0; j<molecule_list.full_colloid_list.size(); j++) {
+                if (j!=index)
+                    e += compute_pair_energy(*(molecule_list.full_colloid_list[index]),*(molecule_list.full_colloid_list[j]),
+                                             box, pair_info);
+                if (pair_info.overlap) {
+                    return ((double) BIG_NUM);
+                }
+            }
+        }
+        return e;
+    }
+    
+    //total system energy
+    double compute_pair_energy(MoleculeList& molecule_list,
+                                Box& box, pair_info& pair_info){
+        
+        double e = 0.;
+        
+        for (unsigned int i=0; i<molecule_list.full_colloid_list.size(); i++) {
+            for (unsigned int j=i+1; j<molecule_list.full_colloid_list.size(); j++) {
+                
+                e += compute_pair_energy(*(molecule_list.full_colloid_list[i]),*(molecule_list.full_colloid_list[j]),box, pair_info);
+                
+                if (pair_info.overlap) {
+                    
+                    return ((double) BIG_NUM);
+                }
+            }
+        }
+        
+        return e;
+        
+    }
+    
     
 }
 

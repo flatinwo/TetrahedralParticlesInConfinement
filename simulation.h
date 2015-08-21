@@ -61,6 +61,8 @@ namespace TetrahedralParticlesInConfinement {
     protected:
         int _nmovespercycle;
         int _steps;
+        double _max_displacement;
+        
         bool _equilibrate;
         int _update_neighbors_frequency_per_cycle;
         
@@ -70,7 +72,6 @@ namespace TetrahedralParticlesInConfinement {
         NeighborList_with_info_t _neighbor_list;
         pair_info _pair_info;
         RandomNumberGenerator& _rng;
-        
         
         //build two neighborlists, use in umbrella
         std::ofstream _ofile;

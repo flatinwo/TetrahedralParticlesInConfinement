@@ -24,6 +24,7 @@ namespace TetrahedralParticlesInConfinement{
     class SimulationNVTEnsemble : public Simulation {
         
         friend class AnalyzeSimulationStepSize;
+        friend class TestSimulationNVTEnsemble;
         
     public:
         SimulationNVTEnsemble(MoleculeList&, Box&, RandomNumberGenerator&);
@@ -70,12 +71,14 @@ namespace TetrahedralParticlesInConfinement{
         double _E, _delE;
         bool _core_flag;
         double _cos_angle_max;
+        double _delta_skin;
         
         int attemptMove(int);
         int attemptSubMove(int);
         int _flag;
         
         coord_list_t _old_config;
+        coord_t _new_config;
         TetramerPatchyColloid _old_molecule;
         Colloid _old_colloid;
         
@@ -87,6 +90,10 @@ namespace TetrahedralParticlesInConfinement{
         void    saveConfig(int index);
         void    revertConfig(int index);
         void    updateMoveInfo(int);
+        
+        bool checkNeighborList();
+        void computeMaxDisplacement();
+        
         
         std::map<int,move_info> _move_info_map;
         

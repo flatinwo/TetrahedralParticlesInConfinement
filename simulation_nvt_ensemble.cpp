@@ -39,18 +39,16 @@ namespace TetrahedralParticlesInConfinement{
         _move_info_map[ROTATE] = move_info();
         
         _move_info_map[TRANSLATE].delta_move = 0.025;
-        _move_info_map[TRANSLATE].delta_move_max = 0.3*_molecule_list.molecule_list[0].colloid_list[0].diameter;
+        _move_info_map[TRANSLATE].delta_move_max = 0.5*_molecule_list.molecule_list[0].colloid_list[0].diameter;
         
-        //_update_neighbors_frequency_per_cycle = (int) floor(_colloid_list.colloid_list[0].diameter/_move_info_map[TRANSLATE].delta_move);
-        
-        /*std::cout << _move_info_map[TRANSLATE].delta_move << "\n";
-        std::cout << _move_info_map[ROTATE].delta_move << "\n";
-        std::cout << _update_move_frequency_per_cycle << "\n";*/
         
         _cos_angle_max = 0.99; //have a set for this
         
         _E = _delE = 0.;
         _core_flag = false;
+        
+        _delta_skin = sqrt(_neighbor_list.second.cut_off_sqd) - sqrt(_pair_info.cut_off_criteria);
+        assert(_delta_skin > 0.1);
     }
     
     
@@ -170,25 +168,32 @@ namespace TetrahedralParticlesInConfinement{
     
     double SimulationNVTEnsemble::computeEnergy(int index){
         _pair_info.overlap = false;
-        return compute_pair_energy_full(index, _molecule_list,
+        /*return compute_pair_energy_full(index, _molecule_list,
                                    _box, _pair_info,
                                    _neighbor_list.first,
-                                   _neighbor_list.second);
+                                   _neighbor_list.second);*/
+        return compute_pair_energy(index, _molecule_list,
+                                        _box, _pair_info);
     }
     
     double SimulationNVTEnsemble::computeEnergy(){
         _pair_info.overlap = false;
-        return compute_pair_energy_full(_molecule_list,
+        /*return compute_pair_energy_full(_molecule_list,
                                    _box, _pair_info,
                                    _neighbor_list.first,
-                                   _neighbor_list.second);
+                                   _neighbor_list.second);*/
+        
+        return compute_pair_energy(_molecule_list,
+                                   _box, _pair_info);
         
     }
     
     double SimulationNVTEnsemble::computeMoleculeEnergy(int index){
         _pair_info.overlap = false;
         assert(index < _molecule_list.molecule_list.size());
-        return compute_pair_molecule_energy_full(index, _molecule_list, _box, _pair_info,_neighbor_list.first, _neighbor_list.second);
+        //return compute_pair_molecule_energy_full(index, _molecule_list, _box, _pair_info,_neighbor_list.first, _neighbor_list.second);
+        
+        return compute_pair_molecule_energy(index, _molecule_list, _box, _pair_info);
     }
     
 #pragma mark MOVES
@@ -211,8 +216,6 @@ namespace TetrahedralParticlesInConfinement{
     }
     
     int SimulationNVTEnsemble::attemptSubMove(int i){
-
-        //_flag = TRANSLATE;
         
         saveConfig(i);
         
@@ -223,18 +226,26 @@ namespace TetrahedralParticlesInConfinement{
             int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
             old_e = computeMoleculeEnergy(molecule_id);
             Translation(i);
+            //computeMaxDisplacement();
+            //if (checkNeighborList()) buildNeighborList();
             new_e = computeMoleculeEnergy(molecule_id);
         }
         else if (_flag == ROTATE ){
             
             if (!_core_flag) {
                 old_e = computeEnergy(i);
+                if (old_e > 749 && !_equilibrate){
+                    std::cout << computeEnergy() << std::endl;
+                    buildNeighborList();
+                    old_e = computeEnergy(i);
+                }
                 Rotation(i);
                 if (!isRotationGood(i)) {
                     updateMoveInfo(REJECT);
                     revertConfig(i);
                     return 0;
                 }
+                
                 new_e = computeEnergy(i);
             }
             else{
@@ -263,6 +274,10 @@ namespace TetrahedralParticlesInConfinement{
         //std::cerr << old_e << "\t" << new_e << "\t" << exp(-_beta*(new_e - old_e)) << std::endl;
         
         if (old_e > 749 && !_equilibrate) {
+            std::cout << computeEnergy() << std::endl;
+            buildNeighborList();
+            std::cout << computeEnergy() << std::endl;
+            std::cout << *this;
             std::cerr << "Initial Energy during equilibration run is too high" << std::endl;
             exit(0);
         }
@@ -320,15 +335,15 @@ namespace TetrahedralParticlesInConfinement{
     void SimulationNVTEnsemble::Translation(int index){
         assert(_molecule_list.full_colloid_list[index]->core);
         
-        coord_t x = _molecule_list.full_colloid_list[index]->_center_of_mass;
-        translate(x, _box, _move_info_map[TRANSLATE]);
-        _molecule_list.molecule_list[_molecule_list.full_colloid_list[index]->molecule_id].setCenterOfMass(x);
+        _new_config = _molecule_list.full_colloid_list[index]->_center_of_mass;
+        translate(_new_config, _box, _move_info_map[TRANSLATE]);
+        _molecule_list.molecule_list[_molecule_list.full_colloid_list[index]->molecule_id].setCenterOfMass(_new_config,_box);
         
     }
     
     void SimulationNVTEnsemble::Rotation(int index){
         if (_flag == ROTATEMOLECULE) {
-            rotate(_molecule_list.molecule_list[_molecule_list.full_colloid_list[index]->molecule_id], _move_info_map[ROTATE]);
+            rotate(_molecule_list.molecule_list[_molecule_list.full_colloid_list[index]->molecule_id], _move_info_map[ROTATEMOLECULE]);
         }
         else{
             int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
@@ -373,7 +388,7 @@ namespace TetrahedralParticlesInConfinement{
     void SimulationNVTEnsemble::revertConfig(int index){
         if (_flag == TRANSLATE){
             int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
-            _molecule_list.molecule_list[molecule_id].setCenterOfMass(_old_config[0]);
+            _molecule_list.molecule_list[molecule_id].setCenterOfMass(_old_config[0],_box);
         }
         else if (_flag == ROTATE){
             int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
@@ -420,6 +435,30 @@ namespace TetrahedralParticlesInConfinement{
             return (cos_angle > _cos_angle_max);
         }
     }
+    
+    void SimulationNVTEnsemble::computeMaxDisplacement(){
+        
+        assert(_old_config.size()==1);
+        assert(_old_config[0].size() == _new_config.size());
+        
+        _max_displacement = 0.;
+        for (unsigned int i=0; i<_old_config[0].size(); i++){
+            _max_displacement = std::max(std::abs(_new_config[i] - _old_config[0][i]),_max_displacement); //should this include pbc?
+        }
+    }
+    
+    bool SimulationNVTEnsemble::checkNeighborList(){
+        //conservative test to see if neighbor_list should be rebuilt
+        //borrowed from f.19 at www.ccl.net allen and tildsey codes
+        _max_displacement = 2.0*sqrt(3.0*_max_displacement*_max_displacement);
+        
+        if (_max_displacement > _delta_skin)
+            return true;
+        else
+            return false;
+    }
+    
+    
     
 #pragma mark FILE_HANDLING
     

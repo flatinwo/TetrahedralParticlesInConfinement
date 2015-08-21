@@ -18,6 +18,7 @@ namespace TetrahedralParticlesInConfinement{
     Simulation::Simulation(MoleculeList& molecule_list, Box& box, RandomNumberGenerator& rng):_molecule_list(molecule_list),_box(box),_rng(rng){
         _pair_info = pair_info();
         _steps = 0;
+        _max_displacement = 0.;
     }
     
     
