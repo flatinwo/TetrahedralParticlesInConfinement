@@ -34,6 +34,7 @@ namespace TetrahedralParticlesInConfinement {
         double _upper_bound;
         double _lower_bound;
         
+        
         SimulationNVTEnsemble* _NVT; //use null to switch the flow
         SimulationNPTEnsemble* _NPT; //use null to switch the flow
         SimulationNPTEnsemble* _Gibbs; //use null to switch the flow (note: this should be a gibbs calculation)
@@ -45,11 +46,14 @@ namespace TetrahedralParticlesInConfinement {
         void closeFile();
         void updateDeltaMove();
         void updateDeltaMove(double&);
+        void updateDeltaMove(move_info&);
         void reset();
         
         void nvt_run(int);
         void npt_run(int);
         void gibbs_run(int);
+        
+        bool areAllMoveInfoGood();
         
         
         

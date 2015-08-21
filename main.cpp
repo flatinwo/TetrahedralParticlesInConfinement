@@ -20,7 +20,7 @@ int main(int argc, const char * argv[]) {
     double density;
     
     if (argc < 2)
-        density = 0.065;
+        density = 0.13;
     else
         density = atof(argv[1]);
     
@@ -38,7 +38,7 @@ int main(int argc, const char * argv[]) {
     std::cout << "rho\t" << density << std::endl;
  
     LatticeFCC lattice;
-    lattice.setNumberOfLatticePoints(150);
+    lattice.setNumberOfLatticePoints(15);
     lattice.setDensity(2.0*density);
     lattice.generateLattice();
     
@@ -48,59 +48,66 @@ int main(int argc, const char * argv[]) {
     SimulationNVTEnsemble simulation(System, box, rng);
     simulation.setCosAngleMax(0.9);
     simulation.setDensity(density);
-    simulation.setBeta(1./0.08);
-    
-    double N = (double) System.molecule_list.size();
-
-    std::ofstream file0;
-    file0.open("initial_config.xyz");
-    file0 << simulation;
-    file0.close();
-    
-    std::cout << "Initial Energy is " << simulation.computeEnergy()/N << std::endl;
-
-    std::cout << "Equilibrating..." << std::endl;   
-    simulation.setEquilibrate(true);
-    simulation.run(1000000);
-    
-    
-    AnalyzeSimulationStepSize analysis(simulation);
- 
-    std::cout << "Analyzing the step size..." << std::endl;   
-    analysis.run(40000);
-   
- 
-    std::cout << "Equilibrating..." << std::endl;   
-    simulation.setEquilibrate(true);
-    simulation.run(1000000);
-    
-   
-    for (int i=0; i<3; i++){
-	std::cout << i << std::endl;
-	simulation.getMoveInfoMap()[i].compute_move_probability();
-	std::cout << simulation.getMoveInfoMap()[i];
-    } 
-    std::cout << "Initial Energy (post equilibration) is " << simulation.computeEnergy()/N << std::endl;
-    
-
-    std::cout << "Production..." << std::endl;   
- 
-    ///Users/Folarin/Library/Developer/Xcode/DerivedData/
-    simulation.setEquilibrate(false); 
-    simulation.openFile();
-    for (int i=0; i<10000; i++){
-        simulation.writeConfig();
-        simulation.run(200);
+    for (int i=0;i<2;i++){
+        
+        if (i==0) simulation.setBeta(1./0.20);
+        else simulation.setBeta(1./0.08);
+        
+        double N = (double) System.molecule_list.size();
+        
+        std::ofstream file0;
+        file0.open("initial_config.xyz");
+        file0 << simulation;
+        file0.close();
+        
+        std::cout << "Initial Energy is " << simulation.computeEnergy()/N << std::endl;
+        
+        std::cout << "Equilibrating..." << std::endl;
+        simulation.setEquilibrate(true);
+        simulation.run(5000);
+        
+        
+        AnalyzeSimulationStepSize analysis(simulation);
+        
+        std::cout << "Analyzing the step size..." << std::endl;
+        analysis.run(1000);
+        
+        
+        std::cout << "Equilibrating..." << std::endl;
+        simulation.setEquilibrate(true);
+        simulation.run(10000);
+        
+        
+        for (int i=0; i<3; i++){
+            std::cout << i << std::endl;
+            simulation.getMoveInfoMap()[i].compute_move_probability();
+            std::cout << simulation.getMoveInfoMap()[i];
+        }
+        
+        std::cout << "Initial Energy (post equilibration) is " << simulation.computeEnergy()/N << std::endl;
+        
+        
+        std::cout << "Production..." << std::endl;
+        
+        ///Users/Folarin/Library/Developer/Xcode/DerivedData/
+        simulation.setEquilibrate(false);
+        simulation.openFile();
+        for (int i=0; i<5000; i++){
+            simulation.writeConfig();
+            simulation.run(10);
+        }
+        simulation.closeFile();
+        
+        
+        for (int i=0; i<3; i++){
+            std::cout << i << std::endl;
+            simulation.getMoveInfoMap()[i].compute_move_probability();
+            std::cout << simulation.getMoveInfoMap()[i];
+        } 
+        std::cout << "Final Energy is " << simulation.computeEnergy()/N << std::endl;
+        
     }
-    simulation.closeFile();
-   
 
-    for (int i=0; i<3; i++){
-	std::cout << i << std::endl;
-	simulation.getMoveInfoMap()[i].compute_move_probability();
-	std::cout << simulation.getMoveInfoMap()[i];
-    } 
-    std::cout << "Final Energy is " << simulation.computeEnergy()/N << std::endl;
     
     return 0;
 }

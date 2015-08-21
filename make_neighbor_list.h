@@ -21,7 +21,7 @@ namespace TetrahedralParticlesInConfinement {
     
     struct neighbor_list_info{
         neighbor_list_info():
-        cut_off_sqd(6.25),
+        cut_off_sqd(4.00),
         number_of_pairs(0),
         built(false),
         full_neighbor_list(true)

@@ -14,6 +14,8 @@
 
 namespace TetrahedralParticlesInConfinement{
     
+#define SMALL 0.0001
+    
     //Constructors
     AnalyzeSimulationStepSize::AnalyzeSimulationStepSize(SimulationNVTEnsemble& NVT):_NVT(&NVT){
         reset();
@@ -38,7 +40,7 @@ namespace TetrahedralParticlesInConfinement{
         _acceptance_probability = 0.0;
         _upper_bound = 0.40;
         _lower_bound = 0.30;
-        _count_max = 10;
+        _count_max = 30;
     }
     
 #pragma mark SETS
@@ -101,18 +103,26 @@ namespace TetrahedralParticlesInConfinement{
         
         const int count_max = _count_max;
         double old_e, new_e;
-        double old_delta_move = 0.0;
+        std::vector<double> old_delta_move(3,0.);
         int substeps = 100;
         
         int nsub_steps = ceil((double) nsteps/ (double) substeps);
         
-        while (_acceptance_probability > _upper_bound || _acceptance_probability < _lower_bound) {
+        //here update each delta_max angle at the same time
+        
+        //while (_acceptance_probability > _upper_bound || _acceptance_probability < _lower_bound) {
+        while (areAllMoveInfoGood()) {
+
             old_e = _NVT->computeEnergy(); //compute energy of initial configuration
             
             for (int i=0; i<nsub_steps; i++) {
                 _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE].reset();
+                _NVT->_move_info_map[SimulationNVTEnsemble::ROTATE].reset();
+                _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE].reset();
                 
-                old_delta_move = _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE].delta_move;
+                old_delta_move[0] = _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE].delta_move;
+                old_delta_move[1] = _NVT->_move_info_map[SimulationNVTEnsemble::ROTATE].delta_move;
+                old_delta_move[2] = _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE].delta_move;
                 
                 _NVT->run(substeps);
                 
@@ -120,7 +130,17 @@ namespace TetrahedralParticlesInConfinement{
                 
                 //delta_move updates
                 double& delta_move = _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE].delta_move;
-                updateDeltaMove(delta_move);
+                //double& delta_move1 = _NVT->_move_info_map[SimulationNVTEnsemble::ROTATE].delta_move;
+                //double& delta_move2 = _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE].delta_move;
+                
+                
+                //can be made a lot cleaner
+                updateDeltaMove(_NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE]);
+                updateDeltaMove(_NVT->_move_info_map[SimulationNVTEnsemble::ROTATE]);
+                updateDeltaMove(_NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE]);
+                //updateDeltaMove(delta_move);
+                //updateDeltaMove(delta_move1);
+                //updateDeltaMove(delta_move2);
                 
                 //making sure neighbor lists are updated
                 _NVT->_update_neighbors_frequency_per_cycle = floor(((double) _NVT->_molecule_list.full_colloid_list[0]->diameter)/delta_move);
@@ -143,6 +163,22 @@ namespace TetrahedralParticlesInConfinement{
                 std::cerr << "Statistics for delta move = \t" << old_delta_move <<"\n============\n";
                 std::cerr << "Acceptance probability\t" << _acceptance_probability << std::endl;
                 std::cerr << "Initial Energy:\t" << old_e << ",\tFinal Energy:\t" << new_e << std::endl;
+                
+                std::cerr << "Note done with step size analysis\n";
+                std::cerr << "Here are your results:\n";
+                std::cerr << "TRANSLATE";
+                std::cerr << _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE];
+                
+                std::cerr << "Here are your results:\n";
+                std::cerr << "ROTATE";
+                _NVT->_move_info_map[SimulationNVTEnsemble::ROTATE].compute_move_probability();
+                std::cerr << _NVT->_move_info_map[SimulationNVTEnsemble::ROTATE];
+                
+                std::cerr << "Here are your results:\n";
+                std::cerr << "ROTATEMOLECULE";
+                _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE].compute_move_probability();
+                std::cerr << _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE];
+                
                 exit(0);
             }
         }
@@ -215,6 +251,61 @@ namespace TetrahedralParticlesInConfinement{
         }
         
     }
+    
+    void AnalyzeSimulationStepSize::updateDeltaMove(move_info& info){
+        
+        double _acceptance_prob = info.get_move_probability();
+        double& delta_move = info.delta_move;
+        
+        if (_acceptance_prob < _lower_bound) {
+            if (_acceptance_prob < 0.15) {
+                delta_move /= 3.;
+            }
+            else
+                delta_move *= 0.95;
+        }
+        else if (_acceptance_prob > _upper_bound){
+            if (_acceptance_prob > 0.85) {
+                delta_move *= 3.;
+            }
+            else
+                delta_move *= 1.05;
+        }
+        
+        if (delta_move < SMALL) delta_move = SMALL;
+        if (delta_move > info.delta_move_max) delta_move = info.delta_move_max;
+        
+    }
+    
+    bool AnalyzeSimulationStepSize::areAllMoveInfoGood(){
+        
+        if (_iteration_count == 0) {
+            return true;
+        }
+        
+        double _acceptance_prob;
+        _acceptance_prob = _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE].get_move_probability();
+        
+        if (_acceptance_prob > _upper_bound || _acceptance_prob < _lower_bound){
+            return true;
+        }
+        else{
+            _acceptance_prob = _NVT->_move_info_map[SimulationNVTEnsemble::ROTATE].get_move_probability();
+            if (_acceptance_prob > _upper_bound || _acceptance_prob < _lower_bound){
+                return true;
+            }
+            else{
+                _acceptance_prob = _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE].get_move_probability();
+                if (_acceptance_prob > _upper_bound || _acceptance_prob < _lower_bound){
+                    return true;
+                }
+                else
+                    return false;
+            }
+        }
+        
+    }
+    
     
     void AnalyzeSimulationStepSize::updateDeltaMove(){
         
