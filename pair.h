@@ -94,6 +94,23 @@ namespace TetrahedralParticlesInConfinement {
                                     neighbor_list_info& neighbor_info);
     
     
+    // energy computes without neighbor lists
+    double compute_pair_energy(MoleculeList& molecule_list,
+                               Box& box,
+                               pair_info& pair_info);//make template for file, question for Ladapo vector of references or reference of vectors
+    
+    
+    double compute_pair_energy(int index,
+                               MoleculeList& molecule_list,
+                               Box& box,
+                               pair_info& pair_info);
+    
+    double compute_pair_molecule_energy(int index,
+                                        MoleculeList& molecule_list,
+                                        Box& box,
+                                        pair_info& pair_info);
+    
+    
     
     double compute_orientation(Colloid& colloid1, Colloid& colloid2, double_coord_t& dx, pair_info& info);
     
