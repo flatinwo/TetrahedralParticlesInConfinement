@@ -13,6 +13,7 @@
 #include "pair.h"
 #include "moves.h"
 #include "operator.h"
+#include "spatial.h"
 
 //question: it may be better to return on translate or rotate instead
 //of passing by reference, because of the acceptance probability
@@ -47,7 +48,7 @@ namespace TetrahedralParticlesInConfinement{
         _E = _delE = 0.;
         _core_flag = false;
         
-        _delta_skin = sqrt(_neighbor_list.second.cut_off_sqd) - sqrt(_pair_info.cut_off_criteria);
+        _delta_skin = 0.5*(sqrt(_neighbor_list.second.cut_off_sqd) - sqrt(_pair_info.cut_off_criteria));
         assert(_delta_skin > 0.1);
     }
     
@@ -168,32 +169,33 @@ namespace TetrahedralParticlesInConfinement{
     
     double SimulationNVTEnsemble::computeEnergy(int index){
         _pair_info.overlap = false;
-        /*return compute_pair_energy_full(index, _molecule_list,
+        return compute_pair_energy_full(index, _molecule_list,
                                    _box, _pair_info,
                                    _neighbor_list.first,
-                                   _neighbor_list.second);*/
-        return compute_pair_energy(index, _molecule_list,
-                                        _box, _pair_info);
+                                   _neighbor_list.second);
+        
+        /*return compute_pair_energy(index, _molecule_list,
+                                        _box, _pair_info);*/
     }
     
     double SimulationNVTEnsemble::computeEnergy(){
         _pair_info.overlap = false;
-        /*return compute_pair_energy_full(_molecule_list,
+        return compute_pair_energy_full(_molecule_list,
                                    _box, _pair_info,
                                    _neighbor_list.first,
-                                   _neighbor_list.second);*/
+                                   _neighbor_list.second);
         
-        return compute_pair_energy(_molecule_list,
-                                   _box, _pair_info);
+        /*return compute_pair_energy(_molecule_list,
+                                   _box, _pair_info);*/
         
     }
     
     double SimulationNVTEnsemble::computeMoleculeEnergy(int index){
         _pair_info.overlap = false;
         assert(index < _molecule_list.molecule_list.size());
-        //return compute_pair_molecule_energy_full(index, _molecule_list, _box, _pair_info,_neighbor_list.first, _neighbor_list.second);
+        return compute_pair_molecule_energy_full(index, _molecule_list, _box, _pair_info,_neighbor_list.first, _neighbor_list.second);
         
-        return compute_pair_molecule_energy(index, _molecule_list, _box, _pair_info);
+        //return compute_pair_molecule_energy(index, _molecule_list, _box, _pair_info);
     }
     
 #pragma mark MOVES
@@ -217,17 +219,17 @@ namespace TetrahedralParticlesInConfinement{
     
     int SimulationNVTEnsemble::attemptSubMove(int i){
         
-        saveConfig(i);
-        
         double old_e = 0.0, new_e = 0.0;
+        
+        saveConfig(i);
+        if (checkNeighborList(i)) buildNeighborList();
         
         //make moves, translate, rotate a colloid, or rotate molecule
         if (_flag == TRANSLATE) {
             int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
             old_e = computeMoleculeEnergy(molecule_id);
             Translation(i);
-            //computeMaxDisplacement();
-            //if (checkNeighborList()) buildNeighborList();
+            if (checkNeighborList(i)) buildNeighborList();
             new_e = computeMoleculeEnergy(molecule_id);
         }
         else if (_flag == ROTATE ){
@@ -245,7 +247,7 @@ namespace TetrahedralParticlesInConfinement{
                     revertConfig(i);
                     return 0;
                 }
-                
+                if (checkNeighborList(i)) buildNeighborList();
                 new_e = computeEnergy(i);
             }
             else{
@@ -266,6 +268,7 @@ namespace TetrahedralParticlesInConfinement{
             int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
             old_e = computeMoleculeEnergy(molecule_id);
             Rotation(i);
+            if (checkNeighborList(i)) buildNeighborList();
             new_e = computeMoleculeEnergy(molecule_id);
         }
         else std::cerr << "ERROR in SimulationNVTEnsemble: Unknown flag for setting _flag\n";
@@ -279,6 +282,7 @@ namespace TetrahedralParticlesInConfinement{
             std::cout << computeEnergy() << std::endl;
             std::cout << *this;
             std::cerr << "Initial Energy during equilibration run is too high" << std::endl;
+            std::cerr << "You may need to increase the size of your Neighbor List criterion" << std::endl;
             exit(0);
         }
         
@@ -443,14 +447,18 @@ namespace TetrahedralParticlesInConfinement{
         
         _max_displacement = 0.;
         for (unsigned int i=0; i<_old_config[0].size(); i++){
-            _max_displacement = std::max(std::abs(_new_config[i] - _old_config[0][i]),_max_displacement); //should this include pbc?
+            _max_displacement = std::max(std::abs(_new_config[i] - _old_config[0][i]),_max_displacement); //should this include, try again with pbc?
         }
     }
     
-    bool SimulationNVTEnsemble::checkNeighborList(){
+    bool SimulationNVTEnsemble::checkNeighborList(int i){
         //conservative test to see if neighbor_list should be rebuilt
         //borrowed from f.19 at www.ccl.net allen and tildsey codes
-        _max_displacement = 2.0*sqrt(3.0*_max_displacement*_max_displacement);
+        
+        //or code from frenkel & smit
+        _max_displacement = distance(_molecule_list.full_colloid_list[i]->_center_of_mass,
+                                     _coords_since_last_neighbor_build[i]);
+        //return true;
         
         if (_max_displacement > _delta_skin)
             return true;
@@ -491,7 +499,6 @@ namespace TetrahedralParticlesInConfinement{
     void SimulationNVTEnsemble::writeConfig(){
         _ofile << *this;
     }
-    
     
     
 }

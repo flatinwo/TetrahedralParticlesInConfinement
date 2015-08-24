@@ -72,6 +72,7 @@ namespace TetrahedralParticlesInConfinement {
         NeighborList_with_info_t _neighbor_list;
         pair_info _pair_info;
         RandomNumberGenerator& _rng;
+        coord_list_t _coords_since_last_neighbor_build;
         
         //build two neighborlists, use in umbrella
         std::ofstream _ofile;

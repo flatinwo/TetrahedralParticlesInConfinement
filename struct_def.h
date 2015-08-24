@@ -31,6 +31,10 @@ namespace TetrahedralParticlesInConfinement {
     typedef std::complex<double> component_t;
     typedef std::vector<component_t> shpdesc_t;
     
+    typedef std::vector< std::complex<double> > component_list_t;
+
+    
+    
     typedef void* arg_t; //what is a void pointer?
     
     //note quaternion and orientation should be pair

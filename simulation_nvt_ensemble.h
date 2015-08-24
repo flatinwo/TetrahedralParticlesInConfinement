@@ -91,7 +91,7 @@ namespace TetrahedralParticlesInConfinement{
         void    revertConfig(int index);
         void    updateMoveInfo(int);
         
-        bool checkNeighborList();
+        bool checkNeighborList(int);
         void computeMaxDisplacement();
         
         
