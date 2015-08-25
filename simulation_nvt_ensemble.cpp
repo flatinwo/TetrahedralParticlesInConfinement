@@ -456,7 +456,7 @@ namespace TetrahedralParticlesInConfinement{
         //borrowed from f.19 at www.ccl.net allen and tildsey codes
         
         //or code from frenkel & smit
-        _max_displacement = distance(_molecule_list.full_colloid_list[i]->_center_of_mass,
+        _max_displacement = TetrahedralParticlesInConfinement::distance(_molecule_list.full_colloid_list[i]->_center_of_mass,
                                      _coords_since_last_neighbor_build[i]);
         //return true;
         
