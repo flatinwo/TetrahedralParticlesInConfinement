@@ -22,18 +22,20 @@ int main(int argc, const char * argv[]) {
     RandomNumberGenerator48 rng;
     double bond_length = 0.5;
     
-    if (argc < 2)
-        std::cerr "Invalid number of arguments" << std::endl;
-    else
-        const char * filename = argv[1];
+    if (argc < 2){
+        std::cerr << "Invalid number of arguments" << std::endl;
+        exit(0);
+    }
+    
+    const char * filename = argv[1];
     
     system.setMoleculeListBondLength(bond_length);
     loadxyz(filename, system, box);
     
     std::cout << "Box details\n" << box;
-    SimulationNVTEnsemble NVT(system,box,rng);
+    SimulationNVTEnsemble simulation(system,box,rng);
     
-    std::cout << NVT.computeEnergy()/(double (system.molecule_list.size())) << std::endl;
+    std::cout << simulation.computeEnergy()/(double (system.molecule_list.size())) << std::endl;
     
     
     simulation.setBeta(1./0.09);
