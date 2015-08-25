@@ -19,6 +19,7 @@ namespace TetrahedralParticlesInConfinement{
         _pair_info = pair_info();
         _steps = 0;
         _max_displacement = 0.;
+        buildNeighborList();
     }
     
     
