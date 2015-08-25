@@ -82,6 +82,22 @@ namespace TetrahedralParticlesInConfinement {
         
     }
     
+    
+    void TetramerPatchyColloid::setCenterOfMasses(const coord_list_t& x, const Box& box){
+        assert((int) x.size() == _number_of_particles);
+        
+        for (unsigned int i=0; i<x.size(); i++) {
+            colloid_list[i]._center_of_mass = x[i];
+            if (i>0) {
+                for (unsigned int j=0; j<x[i].size(); j++) {
+                    colloid_list[i].orientation[j] = colloid_list[i]._center_of_mass[j] - colloid_list[0]._center_of_mass[j];
+                    pbc(colloid_list[i].orientation[j], box.box_period[j], box.periodic[j]);
+                }
+                normalize(colloid_list[i].orientation);
+            }
+        }
+    }
+    
     void TetramerPatchyColloid::setMoleculeID(int index){
         for (unsigned int i=0; i<colloid_list.size(); i++) {
             colloid_list[i].molecule_id = index;

@@ -43,6 +43,18 @@ namespace TetrahedralParticlesInConfinement {
         buildFullColloidListPointer();
     }
     
+    
+    void MoleculeList::addToMoleculeList(const coord_list_t& x_c, const Box& box){
+        int n = (int) molecule_list.size();
+        TetramerPatchyColloid A(_bond_length);
+        A.setCenterOfMasses(x_c, box);
+        A.setMoleculeID(n);
+        molecule_list.push_back(A);
+        buildFullColloidListPointer();
+    }
+    
+
+    
     void MoleculeList::buildMoleculeListAndBox(Lattice& lattice_input, Box& box){
         
         buildMoleculeList(lattice_input);

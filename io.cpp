@@ -18,6 +18,7 @@
 #include <cassert>
 #include <map>
 #include <assert.h>
+#include <stack>
 
 namespace TetrahedralParticlesInConfinement {
     
@@ -144,6 +145,78 @@ namespace TetrahedralParticlesInConfinement {
         }
         
     }
+    
+    
+    void loadxyz(const char* filename, MoleculeList& system, Box& box, arg_t arg){
+        xyz_info* info = (xyz_info*) arg;
+        xyz_info temp_info;
+        
+        if (arg == 0x0){
+            info = &temp_info;
+        }
+        
+        std::istream* is;
+        std::ifstream ifs;
+        
+        if (info->instream != 0x0){
+            is = info->instream;
+        }
+        else{
+            ifs.open(filename);
+            is = &ifs;
+        }
+        
+        assert(is->good());
+        
+        //get total number of particles
+        int n = 0;
+        std::string str, word;
+        std::getline(*is, str);
+        std::istringstream iss(str.c_str());
+        iss >> n;
+        assert(n>0);
+        
+        //now attempt to get box size
+        //a quick long winded approach and assumes that box_lo = zeroes
+        std::getline(*is,str);
+        std::stack<std::string> text;
+        std::istringstream iss1(str);
+        while (iss1.good()) {
+            iss1 >> word;
+            text.push(word);
+        }
+        
+        for (unsigned int i=0; i<box.box_hi.size(); i++) {
+            box.box_hi[i] = std::stod(text.top());
+            box.box_period[i] = box.box_hi[i];
+            text.pop();
+        }
+        
+        
+        coord_list_t x;
+        info->type.clear();
+        
+        for (int i=0; i<n; i++) {
+            std::string typei;
+            double xi, yi, zi;
+            *is >> typei >> xi >> yi >> zi;
+            info->type.push_back(typei);
+            coord_t xyz(3);
+            xyz[0] = xi; xyz[1] = yi; xyz[2] = zi;
+            x.push_back(xyz);
+            if (x.size() == 5) {
+                system.addToMoleculeList(x, box);
+                x.clear();
+            }
+        }
+        std::getline(*is,str);
+        
+        if (info->instream == 0x0) {
+            ifs.close();
+        }
+        
+    }
+    
     
     //saves data with variate types
     

@@ -29,8 +29,11 @@ namespace TetrahedralParticlesInConfinement {
         void setPatchAngle(double);
         void setColloidDiameter(double);
         void setVariableAngle(double);
+        
         void setCenterOfMass(const coord_t&);  //need to use pbc here
         void setCenterOfMass(const coord_t&, const Box&);
+        void setCenterOfMasses(const coord_list_t&, const Box&);
+        
         void setOrientationRandomly();
         void setMoleculeID(int index);
         

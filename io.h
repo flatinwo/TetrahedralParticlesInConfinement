@@ -22,7 +22,7 @@ namespace TetrahedralParticlesInConfinement{
     
     void load(const char*, coord_list_t&, arg_t=0x0);
     void loadxyz(const char* filename, coord_list_t& x, arg_t=0x0);
-    void loadxyz(const char* filename, MoleculeList& system, Box& box);
+    void loadxyz(const char* filename, MoleculeList& system, Box& box, arg_t=0x0);
     
     struct xyz_info{
         xyz_info() : outstream(0x0),instream(0x0){
