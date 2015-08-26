@@ -193,20 +193,23 @@ namespace TetrahedralParticlesInConfinement {
         }
         
         
-        coord_list_t x;
+        coord_list_t x,r;
         info->type.clear();
         
         for (int i=0; i<n; i++) {
             std::string typei;
-            double xi, yi, zi;
-            *is >> typei >> xi >> yi >> zi;
+            double xi, yi, zi, rxi, ryi, rzi;
+            *is >> typei >> xi >> yi >> zi >> rxi >> ryi >> rzi;
             info->type.push_back(typei);
-            coord_t xyz(3);
+            coord_t xyz(3), rxyz(3);
             xyz[0] = xi; xyz[1] = yi; xyz[2] = zi;
+            rxyz[0] = rxi; rxyz[1] = ryi; rxyz[2] = rzi;
             x.push_back(xyz);
+            r.push_back(rxyz);
             if (x.size() == 5) {
-                system.addToMoleculeList(x, box);
+                system.addToMoleculeList(x, r, box);
                 x.clear();
+                r.clear();
             }
         }
         std::getline(*is,str);

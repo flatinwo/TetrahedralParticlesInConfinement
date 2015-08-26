@@ -16,7 +16,7 @@ namespace TetrahedralParticlesInConfinement{
     
     //Hi Rakesh
     
-#define SMALL 0.0001
+#define SMALL 0.00005
     
     //Constructors
     AnalyzeSimulationStepSize::AnalyzeSimulationStepSize(SimulationNVTEnsemble& NVT):_NVT(&NVT){
@@ -166,7 +166,7 @@ namespace TetrahedralParticlesInConfinement{
                 std::cerr << "Acceptance probability\t" << _acceptance_probability << std::endl;
                 std::cerr << "Initial Energy:\t" << old_e << ",\tFinal Energy:\t" << new_e << std::endl;
                 
-                std::cerr << "Note done with step size analysis\n";
+                std::cerr << "Not done with step size analysis\n";
                 std::cerr << "Here are your results:\n";
                 std::cerr << "TRANSLATE";
                 std::cerr << _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE];
@@ -181,7 +181,8 @@ namespace TetrahedralParticlesInConfinement{
                 _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE].compute_move_probability();
                 std::cerr << _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE];
                 
-                exit(0);
+                break;
+                //exit(0);
             }
         }
         
