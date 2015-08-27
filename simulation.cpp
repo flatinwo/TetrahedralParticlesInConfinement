@@ -155,10 +155,10 @@ namespace TetrahedralParticlesInConfinement{
         //this still needs work
         for (unsigned int i=0; i<x.size(); i++){
             if (i%5==0) {
-                _os << "\tN\t" << x[i] << std::endl;
+                _os << "\tN\t" << x[i] << "\t" << _simulation._molecule_list.full_colloid_list[i]->orientation << std::endl;
             }
             else
-                _os << "\tO\t" << x[i] << std::endl;
+                _os << "\tO\t" << x[i] << "\t" << _simulation._molecule_list.full_colloid_list[i]->orientation << std::endl;
         }
         return _os;
         
