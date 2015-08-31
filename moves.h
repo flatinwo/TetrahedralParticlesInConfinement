@@ -50,6 +50,8 @@ namespace TetrahedralParticlesInConfinement {
     
     void rotate(coord_t& orientation, move_info& rotate_info); //done... not tested
     void rotate_sites_per_molecule(coord_list_t& orientation_list, move_info& rotate_info);
+    coord_t rotate_sites(coord_list_t& orientation_list, move_info& rotate_info);
+    
     
     void rotate(coord_list_t& orientation_list, move_info& rotate_info); //done... not tested
     

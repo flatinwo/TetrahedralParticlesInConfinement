@@ -45,6 +45,30 @@ namespace TetrahedralParticlesInConfinement {
         return hamilton_product(q1, q2);
     }
     
+    
+    coord_t cross_product(const coord_t& x1, const coord_t& x2){
+        
+        assert(x1.size()==x2.size());
+        assert(x1.size()==3);
+        coord_t v(x1.size());
+        
+        v[0] = x1[1]*x2[2] - x1[2]*x2[1];
+        v[1] = x1[2]*x2[0] - x1[0]*x2[2];
+        v[2] = x1[0]*x2[1] - x1[1]*x2[0];
+        
+        return v;
+        
+    }
+    
+    double dot_product(const coord_t& x1, const coord_t& x2){
+        assert(x1.size()==x2.size());
+        double sum = 0.;
+        for (unsigned int i=0; i<x1.size(); i++) {
+            sum += x1[i]*x2[i];
+        }
+        return sum;
+    }
+    
     double cosine_angle(const coord_t& x1, const coord_t& x2){
         
         double cosphi = 0.;

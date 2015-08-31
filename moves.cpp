@@ -64,7 +64,7 @@ namespace TetrahedralParticlesInConfinement {
         assert(colloid1.quaternion.size() == 4);
         
         coord_pair QR = generateQuaternionPair(rotate_info);
-        colloid1.quaternion = hamilton_product(colloid1.quaternion, QR.first);
+        colloid1.quaternion = hamilton_product(QR.first, colloid1.quaternion); //order matters
         matrix_vector_product(QR.second, colloid1.orientation);
         
 
@@ -77,7 +77,7 @@ namespace TetrahedralParticlesInConfinement {
         assert(colloid1.quaternion.size() == 4);
         
         coord_pair QR = generateQuaternionPair(rotate_info);
-        colloid1.quaternion = hamilton_product(colloid1.quaternion, QR.first);
+        colloid1.quaternion = hamilton_product(QR.first, colloid1.quaternion); //order matters
         matrix_vector_product(QR.second, colloid1.orientation);
         
         for (int i=0; i<3; i++)
@@ -90,7 +90,7 @@ namespace TetrahedralParticlesInConfinement {
         assert(colloid1.quaternion.size() == 4);
         
         coord_pair QR = generateQuaternionPair(rotate_info);
-        colloid1.quaternion = hamilton_product(colloid1.quaternion, QR.first);
+        colloid1.quaternion = hamilton_product(QR.first, colloid1.quaternion); //note order of the product matters
         matrix_vector_product(QR.second, colloid1.orientation);
         
         for (int i=0; i<3; i++)
@@ -98,9 +98,10 @@ namespace TetrahedralParticlesInConfinement {
         
     }
     
+    //rotates "patches" on core
     void rotate(Colloid& colloid1, coord_list_t& orientation_list, move_info& rotate_info){
         coord_pair QR = generateQuaternionPair(rotate_info);
-        colloid1.quaternion = hamilton_product(colloid1.quaternion, QR.first);
+        colloid1.quaternion = hamilton_product(QR.first, colloid1.quaternion); //note the order of the product matters
         matrix_vector_product(QR.second, colloid1.orientation);
         for (unsigned int i=0; i<orientation_list.size(); i++)
             matrix_vector_product(QR.second, orientation_list[i]);
@@ -109,7 +110,7 @@ namespace TetrahedralParticlesInConfinement {
 
     
     void rotate(Colloid& colloid1, coord_pair& QR){
-        colloid1.quaternion = hamilton_product(colloid1.quaternion, QR.first);
+        colloid1.quaternion = hamilton_product(QR.first, colloid1.quaternion);
         matrix_vector_product(QR.second, colloid1.orientation);
         matrix_vector_product(QR.second, colloid1._center_of_mass);
         
@@ -152,6 +153,32 @@ namespace TetrahedralParticlesInConfinement {
         orientation_list = temp; //is this also a problem
         
     }
+    
+    
+    coord_t rotate_sites(coord_list_t& orientation_list, move_info& rotate_info){
+        
+        coord_pair temp_pair = generateQuaternionPair(rotate_info);
+        coord_list_t R = temp_pair.second;
+        coord_list_t temp;
+        
+        for (int n=0; n<orientation_list.size(); n++) {
+            coord_t temp0 = orientation_list[n];
+            coord_t temp1;
+            for (int i=0; i<3; i++) {
+                double sumi = 0.;
+                for (int j=0; j<3; j++) {
+                    sumi += R[i][j]*temp0[j];
+                }
+                temp1.push_back(sumi);
+            }
+            temp.push_back(temp1);
+        }
+        
+        orientation_list = temp; //is this also a problem
+        return temp_pair.first;
+        
+    }
+    
     
     // will this function ever be called?
     void rotate(coord_list_t& orientation_list, move_info& rotate_info){

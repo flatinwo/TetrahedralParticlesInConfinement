@@ -32,6 +32,16 @@ namespace TetrahedralParticlesInConfinement {
     
     void untranslate(coord_list_t& x, const coord_t& x_c);
     void untranslate(coord_t& x, const coord_t& x_c);
+    
+    /**
+     \brief rotate a coordinate list by a specified quaternion
+     */
+    void rotateq(coord_list_t& x, std::vector<double> Q);
+    
+    /**
+     \brief compute quaternion of rotation between two vectors
+     */
+    coord_t quaternion(const coord_t& v1, const coord_t& v2);
 }
 
 #endif /* defined(__TetrahedralParticlesInConfinement__preprocess__) */

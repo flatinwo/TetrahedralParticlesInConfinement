@@ -19,6 +19,9 @@ namespace TetrahedralParticlesInConfinement{
     coord_t multiply_quaternions(coord_t& q1, coord_t& q2);
     void matrix_vector_product(coord_list_t& A, coord_t& x);
     
+    coord_t cross_product(const coord_t& x1, const coord_t& x2);
+    double dot_product(const coord_t& x1, const coord_t& x2);
+    
     double cosine_angle(const coord_t&, const coord_t&);
     
 }

@@ -19,6 +19,7 @@
 //question save config with static keyword
 //using function pointers or templates, i need to think.. we can compute
 //write out production or equilibrating depending on setEquilibrate
+//assert to test orientation_list that orientation good
 
 namespace TetrahedralParticlesInConfinement{
     class SimulationNVTEnsemble : public Simulation {

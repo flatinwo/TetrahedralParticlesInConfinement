@@ -16,7 +16,7 @@ namespace TetrahedralParticlesInConfinement{
     
     //Hi Rakesh
     
-#define SMALL 0.00005
+#define SMALL 0.00001
     
     //Constructors
     AnalyzeSimulationStepSize::AnalyzeSimulationStepSize(SimulationNVTEnsemble& NVT):_NVT(&NVT){

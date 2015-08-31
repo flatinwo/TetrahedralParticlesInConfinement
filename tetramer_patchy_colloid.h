@@ -24,6 +24,7 @@ namespace TetrahedralParticlesInConfinement {
         
         std::vector<Colloid> colloid_list; // this is the list of colloids
         coord_list_t orientation_list;      // orientation list .. this should be perhaps be a reference
+                                            // a reference for the patches on the core
         
         void setBondLength(double);
         void setPatchAngle(double);

@@ -11,6 +11,7 @@
 #include "spatial.h"
 #include "operator.h"
 #include "moves.h"
+#include "preprocess.h"
 #include <cassert>
 
 namespace TetrahedralParticlesInConfinement {
@@ -88,8 +89,16 @@ namespace TetrahedralParticlesInConfinement {
         
         for (unsigned int i=0; i<x.size(); i++) {
             colloid_list[i]._center_of_mass = x[i];
-            colloid_list[i].orientation = orientation[i];
+            if (i > 0) colloid_list[i].orientation = orientation[i];
         }
+        
+        orientation_list = Template.orientation_list;
+        coord_t q = orientation[0];
+        
+        assert(q.size()==4);
+        rotateq(orientation_list, q);
+        colloid_list[0].orientation = orientation_list[0];
+        colloid_list[0].quaternion = orientation[0];
     }
     
     void TetramerPatchyColloid::setMoleculeID(int index){

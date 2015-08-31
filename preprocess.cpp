@@ -12,6 +12,7 @@
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
+#include "operator.h"
 
 namespace TetrahedralParticlesInConfinement {
     
@@ -172,6 +173,66 @@ namespace TetrahedralParticlesInConfinement {
     void untranslate(coord_t& x, const coord_t& x_c){
         for (unsigned int i=0; i<x.size(); i++) {
             x[i] -= x_c[i];
+        }
+    }
+    
+    
+    coord_t quaternion(const coord_t& v1, const coord_t& v2){
+        assert(v1.size()==3);
+        coord_t q(4), v(3);
+        v = cross_product(v1,v2);
+        
+        q[0] = sqrt(dot_product(v1, v1)*dot_product(v2, v2)) + dot_product(v1, v2);
+        for (unsigned int i=0; i<v.size(); i++) q[i+1] = v[i];
+        return q;
+    }
+    
+    
+    void rotateq(coord_list_t& x, std::vector<double> Q)
+    {
+        assert(Q.size()==4);
+        double norm = sqrt(Q[0]*Q[0] + Q[1]*Q[1] + Q[2]*Q[2] + Q[3]*Q[3]);
+        Q[0] /= norm; Q[1] /= norm; Q[2] /= norm; Q[3] /= norm;
+        
+        double AXX = Q[0] * Q[0] + Q[1] * Q[1] - Q[2] * Q[2] - Q[3] * Q[3];  //modified by FL to match moves.cpp
+        double AXY = 2.0 * ( Q[1] * Q[2] - Q[0] * Q[3] ); //modified FL
+        double AXZ = 2.0 * ( Q[1] * Q[3] + Q[0] * Q[2] ); //modified FL
+        double AYX = 2.0 * ( Q[1] * Q[2] + Q[0] * Q[3] ); //FL
+        double AYY = Q[0] * Q[0] - Q[1] * Q[1] + Q[2] * Q[2] - Q[3] * Q[3];
+        double AYZ = 2.0 * ( Q[2] * Q[3] - Q[0] * Q[1] ); //FL
+        double AZX = 2.0 * ( Q[1] * Q[3] - Q[0] * Q[2] ); //FL
+        double AZY = 2.0 * ( Q[2] * Q[3] + Q[0] * Q[1] ); //FL
+        double AZZ = Q[0] * Q[0] - Q[1] * Q[1] - Q[2] * Q[2] + Q[3] * Q[3];
+        
+        int n = (int)x.size();
+        for (int i=0; i<n; i++) {
+            //create vector between a vertex and the center
+            
+            norm = sqrt(
+                        x[i][0]*x[i][0] + x[i][1]*x[i][1] + x[i][2]*x[i][2]);
+            
+            double unit_vector[3];
+            if (norm == 0.0) {
+                unit_vector[0] = unit_vector[i] = unit_vector[2] = 0.0;
+            }
+            else {
+                unit_vector[0] = x[i][0] / norm;
+                unit_vector[1] = x[i][1] / norm;
+                unit_vector[2] = x[i][2] / norm;
+            }
+            
+            double temp[3];
+            temp[0] = AXX * unit_vector[0] +
+            AXY * unit_vector[1] + AXZ * unit_vector[2];
+            temp[1] = AYX * unit_vector[0] +
+            AYY * unit_vector[1] + AYZ * unit_vector[2];
+            temp[2] = AZX * unit_vector[0] +
+            AZY * unit_vector[1] + AZZ * unit_vector[2];
+            
+            x[i][0] = temp[0] * norm;
+            x[i][1] = temp[1] * norm;
+            x[i][2] = temp[2] * norm;
+            
         }
     }
     
