@@ -269,7 +269,7 @@ namespace TetrahedralParticlesInConfinement{
             int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
             old_e = computeMoleculeEnergy(molecule_id);
             Rotation(i);
-            if (checkNeighborList(i)) buildNeighborList();
+            if (checkNeighborList(i)) buildNeighborList(); //here is the problem
             new_e = computeMoleculeEnergy(molecule_id);
         }
         else std::cerr << "ERROR in SimulationNVTEnsemble: Unknown flag for setting _flag\n";
@@ -459,7 +459,18 @@ namespace TetrahedralParticlesInConfinement{
         //or code from frenkel & smit
         _max_displacement = TetrahedralParticlesInConfinement::distance(_molecule_list.full_colloid_list[i]->_center_of_mass,
                                      _coords_since_last_neighbor_build[i]);
-        //return true;
+        
+        if (_max_displacement > _delta_skin)
+            return true;
+        
+        //fix to allow for different numbers of colloids
+        if (_flag == ROTATEMOLECULE) {
+            int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
+            for (unsigned int i=1; i<5; i++) {
+                int j = molecule_id*5 + i;
+                _max_displacement = std::max(TetrahedralParticlesInConfinement::distance(_molecule_list.full_colloid_list[j]->_center_of_mass, _coords_since_last_neighbor_build[j]), _max_displacement);
+            }
+        }
         
         if (_max_displacement > _delta_skin)
             return true;
