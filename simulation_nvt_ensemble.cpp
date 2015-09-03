@@ -238,6 +238,7 @@ namespace TetrahedralParticlesInConfinement{
                 old_e = computeEnergy(i);
                 if (old_e > 749 && !_equilibrate){
                     std::cout << computeEnergy() << std::endl;
+                    std::cout << *this;
                     buildNeighborList();
                     old_e = computeEnergy(i);
                 }

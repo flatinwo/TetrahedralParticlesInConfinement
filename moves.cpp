@@ -343,7 +343,7 @@ namespace TetrahedralParticlesInConfinement {
         
     }
     
-    // Generate random number
+    // Generate gaussian random number, mean zero and variance 1
     double gasdev(){
         static bool available = false;
         static double gset;

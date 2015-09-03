@@ -44,6 +44,7 @@ namespace TetrahedralParticlesInConfinement {
         //member functions
         void openFile();
         void closeFile();
+        void writeFinalResults();
         void updateDeltaMove();
         void updateDeltaMove(double&);
         void updateDeltaMove(move_info&);

@@ -10,7 +10,11 @@
 #include <iomanip>
 #include <cassert>
 
-//write npt analysis
+//write npt analysis (done)
+//things to do:
+//write cleaner version of areAllMoveInfoGood()
+//write cleaner version of writing delta move info
+
 
 namespace TetrahedralParticlesInConfinement{
     
@@ -84,6 +88,11 @@ namespace TetrahedralParticlesInConfinement{
         }
         
         closeFile();
+        writeFinalResults();
+        
+    }
+    
+    void AnalyzeSimulationStepSize::writeFinalResults(){
         
         std::cerr << "Done with step size analysis\n";
         std::cerr << "Here are your results:\n";
@@ -99,6 +108,14 @@ namespace TetrahedralParticlesInConfinement{
         std::cerr << "ROTATEMOLECULE";
         _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE].compute_move_probability();
         std::cerr << _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE];
+        
+        if (_NPT != NULL) {
+            std::cerr << "Here are your results:\n";
+            std::cerr << "BOX MOVE";
+            _NPT->_volume_info.compute_move_probability();
+            std::cerr << _NPT->_volume_info;
+        }
+        
     }
     
     void AnalyzeSimulationStepSize::nvt_run(int nsteps){
@@ -112,7 +129,6 @@ namespace TetrahedralParticlesInConfinement{
         
         //here update each delta_max angle at the same time
         
-        //while (_acceptance_probability > _upper_bound || _acceptance_probability < _lower_bound) {
         while (areAllMoveInfoGood()) {
 
             old_e = _NVT->computeEnergy(); //compute energy of initial configuration
@@ -130,29 +146,11 @@ namespace TetrahedralParticlesInConfinement{
                 
                 _acceptance_probability = _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE].get_move_probability();
                 
-                //delta_move updates
-                double& delta_move = _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE].delta_move;
-                //double& delta_move1 = _NVT->_move_info_map[SimulationNVTEnsemble::ROTATE].delta_move;
-                //double& delta_move2 = _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE].delta_move;
-                
                 
                 //can be made a lot cleaner
                 updateDeltaMove(_NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE]);
                 updateDeltaMove(_NVT->_move_info_map[SimulationNVTEnsemble::ROTATE]);
                 updateDeltaMove(_NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE]);
-                //updateDeltaMove(delta_move);
-                //updateDeltaMove(delta_move1);
-                //updateDeltaMove(delta_move2);
-                
-                //making sure neighbor lists are updated
-                _NVT->_update_neighbors_frequency_per_cycle = floor(((double) _NVT->_molecule_list.full_colloid_list[0]->diameter)/delta_move);
-                
-                if (_NVT->_update_neighbors_frequency_per_cycle > 10) {
-                    _NVT->_update_neighbors_frequency_per_cycle = 10;
-                }
-                else if (_NVT->_update_neighbors_frequency_per_cycle < 2){
-                    _NVT->_update_neighbors_frequency_per_cycle = 2;
-                }
                 
             }
             
@@ -161,72 +159,69 @@ namespace TetrahedralParticlesInConfinement{
             _ofile << _iteration_count << "\t" << old_delta_move << "\t" << old_e << "\t" << new_e << "\t" << _acceptance_probability << std::endl;
             
             if (_iteration_count > count_max) {
-                std::cerr << "Maximum number of allowable iterations reached! \n";
-                std::cerr << "Statistics for delta move = \t" << old_delta_move <<"\n============\n";
-                std::cerr << "Acceptance probability\t" << _acceptance_probability << std::endl;
-                std::cerr << "Initial Energy:\t" << old_e << ",\tFinal Energy:\t" << new_e << std::endl;
-                
-                std::cerr << "Not done with step size analysis\n";
-                std::cerr << "Here are your results:\n";
-                std::cerr << "TRANSLATE";
-                std::cerr << _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE];
-                
-                std::cerr << "Here are your results:\n";
-                std::cerr << "ROTATE";
-                _NVT->_move_info_map[SimulationNVTEnsemble::ROTATE].compute_move_probability();
-                std::cerr << _NVT->_move_info_map[SimulationNVTEnsemble::ROTATE];
-                
-                std::cerr << "Here are your results:\n";
-                std::cerr << "ROTATEMOLECULE";
-                _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE].compute_move_probability();
-                std::cerr << _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE];
-                
-                break;
-                //exit(0);
+                std::cerr << "MAXIMUM NUMBER OF ITERATIONS REACHED! \n";
+                writeFinalResults();
+                exit(0);
             }
         }
         
     }
     
     void AnalyzeSimulationStepSize::npt_run(int nsteps){
+        
         const int count_max = 2*_count_max;
         double old_e, new_e;
         double old_density, new_density;
         
-        nvt_run(500);
-        reset();
+        std::vector<double> old_delta_move(4,0.);
+        int substeps = 100;
+        int nsub_steps = ceil((double) nsteps/ (double) substeps);
         
-        while (_acceptance_probability > _upper_bound || _acceptance_probability < _lower_bound) {
+        
+        while (areAllMoveInfoGood()) {
+            
             old_e = _NVT->computeEnergy(); //compute energy of initial configuration
             old_density = _NPT->getDensity();
             
-            _NPT->run(nsteps);
             
-            new_e = _NVT->computeEnergy(); //compute energy of final configuration, maybe return enthalpy
+            for (int i=0; i<nsub_steps; i++) {
+                _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE].reset();
+                _NVT->_move_info_map[SimulationNVTEnsemble::ROTATE].reset();
+                _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE].reset();
+                _NPT->_volume_info.reset();
+                
+                old_delta_move[0] = _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE].delta_move;
+                old_delta_move[1] = _NVT->_move_info_map[SimulationNVTEnsemble::ROTATE].delta_move;
+                old_delta_move[2] = _NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE].delta_move;
+                old_delta_move[3] = _NPT->_volume_info.delta_move;
+                
+                _NPT->run(substeps);
+                
+                _acceptance_probability = _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE].get_move_probability();
+                
+                
+                //can be made a lot cleaner
+                updateDeltaMove(_NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE]);
+                updateDeltaMove(_NVT->_move_info_map[SimulationNVTEnsemble::ROTATE]);
+                updateDeltaMove(_NVT->_move_info_map[SimulationNVTEnsemble::ROTATEMOLECULE]);
+                updateDeltaMove(_NPT->_volume_info);
+                
+                
+            }
+            
+            new_e = _NVT->computeEnergy(); //compute energy of final configuration
             new_density = _NPT->getDensity(); // new_density
             
-            _acceptance_probability = _NPT->_volume_info.get_move_probability();
-            
             _iteration_count++;
-            double& delta_move = _NPT->_volume_info.delta_move;
-            
-            _ofile << _iteration_count << "\t" << delta_move << "\t" << old_e << "\t" << new_e << "\t" <<
-            old_density << "\t" << new_density << "\t" << _acceptance_probability << std::endl;
+            _ofile << _iteration_count << "\t" << old_delta_move << "\t" << old_e << "\t" << new_e << "\t" << old_density << "\t" << new_density << "\t" << _acceptance_probability << std::endl;
             
             if (_iteration_count > count_max) {
-                std::cerr << "Maximum number of allowable iterations reached! \n";
-                std::cerr << "Statistics for delta move = \t" << delta_move <<"\n============\n";
-                std::cerr << "Acceptance probability\t" << _acceptance_probability << std::endl;
-                std::cerr << "Initial Energy:\t" << old_e << ",\tFinal Energy:\t" << new_e << std::endl;
+                std::cerr << "MAXIMUM NUMBER OF ITERATIONS REACHED! \n";
+                writeFinalResults();
                 exit(0);
             }
-            updateDeltaMove(delta_move);
-            _NPT->_volume_info.reset();
-            
         }
         
-        reset();
-        nvt_run(500);
         reset();
         
     }
@@ -289,6 +284,8 @@ namespace TetrahedralParticlesInConfinement{
         double _acceptance_prob;
         _acceptance_prob = _NVT->_move_info_map[SimulationNVTEnsemble::TRANSLATE].get_move_probability();
         
+        
+        //this can be rewritten in a cleaner way, perhaps by one line if statements
         if (_acceptance_prob > _upper_bound || _acceptance_prob < _lower_bound){
             return true;
         }
@@ -302,8 +299,21 @@ namespace TetrahedralParticlesInConfinement{
                 if (_acceptance_prob > _upper_bound || _acceptance_prob < _lower_bound){
                     return true;
                 }
-                else
-                    return false;
+                else{
+                    if (_NPT == NULL) { //maybe problematic if nvt_run is called without calling npt_run
+                        return false;
+                    }
+                    else{
+                        _acceptance_prob = _NPT->_volume_info.get_move_probability();
+                        if (_acceptance_prob > _upper_bound || _acceptance_prob < _lower_bound){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                    
+                }
             }
         }
         

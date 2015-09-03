@@ -29,7 +29,7 @@ namespace TetrahedralParticlesInConfinement{
         
         double getPressure();
         double getDensity();
-        move_info getVolumeInfo();
+        move_info& getVolumeInfo();
         SimulationNVTEnsemble& getNVTEnsemble();
         
         void run(int nsteps);

@@ -30,7 +30,7 @@ namespace TetrahedralParticlesInConfinement {
         coord_t x1 = colloid1._center_of_mass;
         coord_t x2 = colloid2._center_of_mass;
         
-        double_coord_t temp = distancesqandvec(x2, x1, box);
+        double_coord_t temp = distancesqandvec(x2, x1, box); //order matters
         double rsq = temp.first;
         coord_t dx = temp.second;
         

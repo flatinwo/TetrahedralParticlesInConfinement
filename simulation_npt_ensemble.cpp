@@ -14,6 +14,7 @@ namespace TetrahedralParticlesInConfinement {
     SimulationNPTEnsemble::SimulationNPTEnsemble(SimulationNVTEnsemble& NVT, RandomNumberGenerator& rng, double pressure):
     _NVT(NVT), _rng(rng), _pressure(pressure), _update_volume_move_frequency_per_cycle(10){
         _volume_info = move_info();
+        _volume_info.delta_move = 0.005;
         
         vol_move_per_cycle = 2;
         _steps = 0;
@@ -44,7 +45,7 @@ namespace TetrahedralParticlesInConfinement {
         return _pressure;
     }
     
-    move_info SimulationNPTEnsemble::getVolumeInfo(){
+    move_info& SimulationNPTEnsemble::getVolumeInfo(){
         return _volume_info;
     }
     
@@ -74,7 +75,12 @@ namespace TetrahedralParticlesInConfinement {
         double old_e = _NVT.computeEnergy();
         double old_v = _NVT.getVolume();
         
-        double log_new_v = log(old_v) + _volume_info.delta_move*_rng.randDouble();
+        if (old_e > 10){
+            
+            std::cout << old_e << std::endl;
+        }
+        
+        double log_new_v = log(old_v) + _volume_info.delta_move*_rng.randNormal();
         double new_v = exp(log_new_v);
         
         double density_ratio = old_v/new_v;
