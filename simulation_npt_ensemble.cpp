@@ -56,7 +56,7 @@ namespace TetrahedralParticlesInConfinement {
         
         for (int i=0; i<nsteps; i++) {
             if (_rng.randInt()% vol_move_per_cycle == 0)
-                _NVT.run(1);
+                _NVT.run(1); //may not guarantee  symmetry of underlying markov chain, see pp. 119 Frenkel & Smit
             else
                 attemptVolumeMove();
             
@@ -97,6 +97,12 @@ namespace TetrahedralParticlesInConfinement {
         - ((double) (Npart+ 1))*_NVT.getTemperature()*log(new_v/old_v);
         
         _volume_info.total_moves++;
+        
+        if (_NVT._pair_info.overlap){
+            _NVT.setDensity(old_density);
+            _volume_info.rejected_moves++;
+            return 0;
+        }
         
         if (_rng.randDouble() > exp(-arg/_NVT.getTemperature())) {
             _NVT.setDensity(old_density);

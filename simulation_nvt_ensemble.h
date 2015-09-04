@@ -26,6 +26,7 @@ namespace TetrahedralParticlesInConfinement{
         
         friend class AnalyzeSimulationStepSize;
         friend class TestSimulationNVTEnsemble;
+        friend class SimulationNPTEnsemble;
         
     public:
         SimulationNVTEnsemble(MoleculeList&, Box&, RandomNumberGenerator&);
@@ -97,6 +98,8 @@ namespace TetrahedralParticlesInConfinement{
         
         
         std::map<int,move_info> _move_info_map;
+        
+        std::pair<int,int> old_flag;
         
         enum {TRANSLATE = 0, ROTATE = 1, ROTATEMOLECULE=2};
         enum {REJECT = 0, ACCEPT = 1};

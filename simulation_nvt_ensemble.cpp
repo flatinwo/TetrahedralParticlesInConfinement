@@ -154,7 +154,7 @@ namespace TetrahedralParticlesInConfinement{
                 buildNeighborList();
             }
             _steps++;
-            if ((!_equilibrate) && (_steps%100==0)) _ofile_energy << _steps << "\t" << computeEnergy()/(double) nmolecules << "\t" << _E / (double) nmolecules << std::endl;
+            if ((!_equilibrate) && (_steps%100==0)) _ofile_energy << _steps << "\t" << computeEnergy()/(double) nmolecules << "\t" << _E / (double) nmolecules <<  "\t" << getDensity() << std::endl;
             //std::cout << "Total Energy\t" << _E << std::endl;
         }
         
@@ -286,6 +286,9 @@ namespace TetrahedralParticlesInConfinement{
             std::cerr << "You may need to increase the size of your Neighbor List criterion" << std::endl;
             exit(0);
         }
+        
+        old_flag.first = _flag;
+        old_flag.second = i;
         
         if (_pair_info.overlap){
             updateMoveInfo(REJECT);
