@@ -1,0 +1,18 @@
+CXX=g++
+CXXFLAGS=-O3 -W -Wall -g -std=c++0x
+LDFLAGS=
+SRC= $(wildcard *.cpp)
+OBJ= $(SRC:.cpp=.o)
+
+all: sciortino_nl_restart2
+
+sciortino_nl_restart2: $(OBJ)
+	    @$(CXX) -o $@ $^ $(LDFLAGS)
+
+%.o: %.c
+	    @$(CXX) -o $@ -c $< $(CXXFLAGS)
+
+.PHONY: clean
+
+clean:
+	    @rm -rf *.o
