@@ -17,10 +17,6 @@ namespace TetrahedralParticlesInConfinement {
     double compute_pair_energy(Colloid& colloid1, Colloid& colloid2,
                                Box& box, pair_info& info){
         
-        if (colloid1.core || colloid2.core) {
-            return 0.;
-        }
-        
         if (colloid1.molecule_id == colloid2.molecule_id)
             return 0.;
         
@@ -43,6 +39,9 @@ namespace TetrahedralParticlesInConfinement {
             return 0.;
         }
         else{
+            if (colloid1.core || colloid2.core) {
+                return 0.;
+            }
             info.overlap = false;
             return (-1.*info.energy_scale*compute_orientations(colloid1,colloid2,temp,info));
         }
