@@ -116,6 +116,7 @@ namespace TetrahedralParticlesInConfinement {
         
     }
     
+    
     void rotate(TetramerPatchyColloid& molecule, move_info& rotate_info){
         
         coord_pair QR = generateQuaternionPair(rotate_info);
@@ -128,6 +129,64 @@ namespace TetrahedralParticlesInConfinement {
             if (i<dim-1) matrix_vector_product(QR.second, molecule.orientation_list[i]);
         }
         molecule.setCenterOfMass(molecule_com);
+    }
+    
+#pragma mark with BOX INFO
+    
+    void rotate(Colloid& colloid1, Box& box, coord_pair& QR){
+        colloid1.quaternion = hamilton_product(QR.first, colloid1.quaternion);
+        matrix_vector_product(QR.second, colloid1.orientation);
+        matrix_vector_product(QR.second, colloid1._center_of_mass);
+        
+        for (unsigned int i=0; i<3; i++) {
+            //pbc(colloid1._center_of_mass[i], box.box_period[i], box.periodic[i]);
+        }
+        
+    }
+    
+    
+    void rotate(TetramerPatchyColloid& molecule, Box& box, move_info& rotate_info){
+        
+        coord_pair QR = generateQuaternionPair(rotate_info);
+        coord_t molecule_com = molecule.colloid_list[0]._center_of_mass;
+        
+        int dim = (int) molecule.colloid_list.size();
+        
+        for (unsigned int i=0; i< dim; i++) {
+            rotate(molecule.colloid_list[i], box, QR);
+            if (i<dim-1) matrix_vector_product(QR.second, molecule.orientation_list[i]);
+        }
+        molecule.setCenterOfMass(molecule_com, box);
+    }
+    
+    void rotate(Colloid& colloid1, Colloid& colloid_ref, Box& box, move_info& rotate_info){
+        
+        assert(colloid1.orientation.size() == 3);
+        assert(colloid1.quaternion.size() == 4);
+        
+        coord_pair QR = generateQuaternionPair(rotate_info);
+        colloid1.quaternion = hamilton_product(QR.first, colloid1.quaternion); //order matters
+        matrix_vector_product(QR.second, colloid1.orientation);
+        
+        for (unsigned int i=0; i<3; i++){
+            colloid1._center_of_mass[i] = colloid_ref._center_of_mass[i] + colloid1.orientation[i];
+            pbc(colloid1._center_of_mass[i], box.box_period[i], box.periodic[i]);
+        }
+        
+    }
+    
+    void rotate(Colloid& colloid1, Colloid& colloid_ref, double bond_length, Box& box, move_info& rotate_info){
+        assert(colloid1.orientation.size() == 3);
+        assert(colloid1.quaternion.size() == 4);
+        
+        coord_pair QR = generateQuaternionPair(rotate_info);
+        colloid1.quaternion = hamilton_product(QR.first, colloid1.quaternion); //note order of the product matters
+        matrix_vector_product(QR.second, colloid1.orientation);
+        
+        for (unsigned int i=0; i<3; i++){
+            colloid1._center_of_mass[i] = colloid_ref._center_of_mass[i] + bond_length*colloid1.orientation[i];
+            //pbc(colloid1._center_of_mass[i], box.box_period[i], box.periodic[i]);
+        }
     }
     
     

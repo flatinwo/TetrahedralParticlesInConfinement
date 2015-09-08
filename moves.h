@@ -61,6 +61,13 @@ namespace TetrahedralParticlesInConfinement {
     void rotate(Colloid& colloid1, Colloid& colloid_ref, move_info&);
     void rotate(Colloid& colloid1, Colloid& colloid_ref, double bond_length, move_info&);
     
+    
+    void rotate(TetramerPatchyColloid&, Box& box, move_info& rotate_info);
+    void rotate(Colloid&, Box&, move_info&);
+    void rotate(Colloid&, Box&, coord_pair&);
+    void rotate(Colloid& colloid1, Colloid& colloid_ref, Box&, move_info&);
+    void rotate(Colloid& colloid1, Colloid& colloid_ref, double bond_length, Box&, move_info&);
+    
     void rotate(int, TetramerPatchyColloid&, move_info&);
     void rotate(Colloid&, coord_list_t&, move_info&);
     

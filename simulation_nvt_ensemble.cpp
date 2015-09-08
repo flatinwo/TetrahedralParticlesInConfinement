@@ -174,8 +174,8 @@ namespace TetrahedralParticlesInConfinement{
                                    _neighbor_list.first,
                                    _neighbor_list.second);
         
-        /*return compute_pair_energy(index, _molecule_list,
-                                        _box, _pair_info);*/
+        //return compute_pair_energy(index, _molecule_list,
+        //                                _box, _pair_info);
     }
     
     double SimulationNVTEnsemble::computeEnergy(){
@@ -185,8 +185,8 @@ namespace TetrahedralParticlesInConfinement{
                                    _neighbor_list.first,
                                    _neighbor_list.second);
         
-        /*return compute_pair_energy(_molecule_list,
-                                   _box, _pair_info);*/
+        //return compute_pair_energy(_molecule_list,
+        //                           _box, _pair_info);
         
     }
     
@@ -287,6 +287,9 @@ namespace TetrahedralParticlesInConfinement{
             exit(0);
         }
         
+        
+        //std::cout << _flag << "\t" <<  old_e << "\t" <<  new_e << std::endl;
+        
         old_flag.first = _flag;
         old_flag.second = i;
         
@@ -351,7 +354,8 @@ namespace TetrahedralParticlesInConfinement{
     
     void SimulationNVTEnsemble::Rotation(int index){
         if (_flag == ROTATEMOLECULE) {
-            rotate(_molecule_list.molecule_list[_molecule_list.full_colloid_list[index]->molecule_id], _move_info_map[ROTATEMOLECULE]);
+            //rotate(_molecule_list.molecule_list[_molecule_list.full_colloid_list[index]->molecule_id], _move_info_map[ROTATEMOLECULE]);
+            rotate(_molecule_list.molecule_list[_molecule_list.full_colloid_list[index]->molecule_id], _box, _move_info_map[ROTATEMOLECULE]);
         }
         else{
             int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
@@ -361,8 +365,12 @@ namespace TetrahedralParticlesInConfinement{
                        _move_info_map[ROTATE]);
             }
             else{
+                //rotate(*_molecule_list.full_colloid_list[index],
+                //       _molecule_list.molecule_list[molecule_id].colloid_list[0],_molecule_list.getBondLength(),
+                //       _move_info_map[ROTATE]);
+                
                 rotate(*_molecule_list.full_colloid_list[index],
-                       _molecule_list.molecule_list[molecule_id].colloid_list[0],_molecule_list.getBondLength(),
+                       _molecule_list.molecule_list[molecule_id].colloid_list[0],_molecule_list.getBondLength(), _box,
                        _move_info_map[ROTATE]);
             }
         }
@@ -460,17 +468,17 @@ namespace TetrahedralParticlesInConfinement{
         //borrowed from f.19 at www.ccl.net allen and tildsey codes
         
         //or code from frenkel & smit
-        _max_displacement = TetrahedralParticlesInConfinement::distance(_molecule_list.full_colloid_list[i]->_center_of_mass,
-                                     _coords_since_last_neighbor_build[i]);
+        _max_displacement = TetrahedralParticlesInConfinement::distance(_molecule_list.full_colloid_list[i]->_center_of_mass, _coords_since_last_neighbor_build[i]);
         
+        //return false;
         if (_max_displacement > _delta_skin)
             return true;
         
         //fix to allow for different numbers of colloids
         if (_flag == ROTATEMOLECULE) {
             int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
-            for (unsigned int i=1; i<5; i++) {
-                int j = molecule_id*5 + i;
+            for (unsigned int k=1; k<5; k++) {
+                int j = molecule_id*5 + k;
                 _max_displacement = std::max(TetrahedralParticlesInConfinement::distance(_molecule_list.full_colloid_list[j]->_center_of_mass, _coords_since_last_neighbor_build[j]), _max_displacement);
             }
         }

@@ -76,7 +76,7 @@ namespace TetrahedralParticlesInConfinement {
             
             for (unsigned int j=0; j<x.size(); j++) {
                 pbc(dx[j],box.box_period[j],box.periodic[j]);
-                colloid_list[i]._center_of_mass[j] = x[j] + dx[j]; //pbc?
+                colloid_list[i]._center_of_mass[j] = x[j] + dx[j];
             }
 
         }
