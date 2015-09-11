@@ -28,9 +28,9 @@ namespace TetrahedralParticlesInConfinement {
     //update trajectory of individual particle
     void translate(coord_t& x, Box& box, move_info& translate_info){
         
-        for (int i=0;i<x.size();i++){
-            x[i] += translate_info.delta_move*gasdev();
-            pbc(x[i], box.box_period[i],box.periodic[i]);
+        for (unsigned int i=0;i<x.size();i++){
+            x[i] += (translate_info.delta_move)*gasdev();
+            pbc(x[i], box.box_period[i], box.periodic[i]);
         }
     }
     
@@ -183,10 +183,11 @@ namespace TetrahedralParticlesInConfinement {
         colloid1.quaternion = hamilton_product(QR.first, colloid1.quaternion); //note order of the product matters
         matrix_vector_product(QR.second, colloid1.orientation);
         
-        for (unsigned int i=0; i<3; i++){
+        for (int i=0; i<3; i++){
             colloid1._center_of_mass[i] = colloid_ref._center_of_mass[i] + bond_length*colloid1.orientation[i];
-            //pbc(colloid1._center_of_mass[i], box.box_period[i], box.periodic[i]);
+            pbc(colloid1._center_of_mass[i], box.box_period[i], box.periodic[i]);
         }
+        
     }
     
     
@@ -338,7 +339,9 @@ namespace TetrahedralParticlesInConfinement {
     
     
     void move_info::compute_move_probability(){
-        assert(total_moves>0);
+        //assert(total_moves>0);
+        if (total_moves == 0) move_probability = 0.35;
+        else
         move_probability = (double) accepted_moves / (double) total_moves;
     }
     

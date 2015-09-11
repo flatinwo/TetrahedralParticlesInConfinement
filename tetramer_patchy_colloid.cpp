@@ -65,20 +65,25 @@ namespace TetrahedralParticlesInConfinement {
         
         colloid_list[0]._center_of_mass = x;
         for (unsigned int i=1; i<colloid_list.size(); i++) {
-            coord_t dx(x.size(),0);
+            //coord_t dx(x.size(),0);
+            coord_t dx(colloid_list[i].orientation);
             
-            for (unsigned int j=0; j<x.size(); j++) {
+            /*for (unsigned int j=0; j<x.size(); j++) {
                 dx[j] = (colloid_list[i]._center_of_mass[j] - temp[j]);
-            }
+            }*/
             
             normalize(dx);
             rescale(dx,_bond_length);
             
             for (unsigned int j=0; j<x.size(); j++) {
-                pbc(dx[j],box.box_period[j],box.periodic[j]);
+                //pbc(dx[j],box.box_period[j],box.periodic[j]); // minimum image convention
                 colloid_list[i]._center_of_mass[j] = x[j] + dx[j];
             }
 
+        }
+        
+        for (unsigned int i=0; i<colloid_list.size(); i++) {
+            pbc(colloid_list[i]._center_of_mass, box.box_period, box.periodic);
         }
         
     }
@@ -115,6 +120,8 @@ namespace TetrahedralParticlesInConfinement {
     void TetramerPatchyColloid::buildMolecule(){
         
         assert(colloid_list.size()==0);
+        _sigma = 1.0;
+        
         
         coord_t unit_quaternion(4,0.);
         unit_quaternion[0] = 1.0;

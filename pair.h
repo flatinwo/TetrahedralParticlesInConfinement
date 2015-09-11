@@ -24,7 +24,7 @@ namespace TetrahedralParticlesInConfinement {
         overlap(false),
         overlap_probability(0.),
         energy_scale(1.0),
-        overlap_criteria(1.0),
+        overlap_criteria(1.00),
         cut_off_criteria(1.251*1.251),
         cut_off_orientation(0.95)
         {}

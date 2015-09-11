@@ -151,10 +151,11 @@ namespace TetrahedralParticlesInConfinement{
             }
             
             if (_steps%_update_neighbors_frequency_per_cycle==0) {
-                buildNeighborList();
+                //buildNeighborList();
             }
             _steps++;
-            if ((!_equilibrate) && (_steps%100==0)) _ofile_energy << _steps << "\t" << computeEnergy()/(double) nmolecules << "\t" << _E / (double) nmolecules <<  "\t" << getDensity() << std::endl;
+            if ((!_equilibrate) && (_steps%100==0)) _ofile_energy << _steps << "\t" << //computeEnergy()/(double) nmolecules <<
+                "\t" << _E / (double) nmolecules <<  "\t" << getDensity() << std::endl;
             //std::cout << "Total Energy\t" << _E << std::endl;
         }
         
@@ -174,8 +175,8 @@ namespace TetrahedralParticlesInConfinement{
                                    _neighbor_list.first,
                                    _neighbor_list.second);
         
-        //return compute_pair_energy(index, _molecule_list,
-        //                                _box, _pair_info);
+        /*return compute_pair_energy(index, _molecule_list,
+                                        _box, _pair_info);*/
     }
     
     double SimulationNVTEnsemble::computeEnergy(){
@@ -185,8 +186,8 @@ namespace TetrahedralParticlesInConfinement{
                                    _neighbor_list.first,
                                    _neighbor_list.second);
         
-        //return compute_pair_energy(_molecule_list,
-        //                           _box, _pair_info);
+        /*return compute_pair_energy(_molecule_list,
+                                   _box, _pair_info);*/
         
     }
     
@@ -236,11 +237,12 @@ namespace TetrahedralParticlesInConfinement{
             
             if (!_core_flag) {
                 old_e = computeEnergy(i);
-                if (old_e > 749 && !_equilibrate){
+                if (old_e > 749 ){// && !_equilibrate){
                     std::cout << computeEnergy() << std::endl;
                     std::cout << *this;
                     buildNeighborList();
                     old_e = computeEnergy(i);
+                    computeEnergy();
                 }
                 Rotation(i);
                 if (!isRotationGood(i)) {
@@ -265,7 +267,7 @@ namespace TetrahedralParticlesInConfinement{
             }
             
         }
-        else if(_flag == ROTATEMOLECULE){
+        else if (_flag == ROTATEMOLECULE){
             int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
             old_e = computeMoleculeEnergy(molecule_id);
             Rotation(i);
@@ -274,8 +276,8 @@ namespace TetrahedralParticlesInConfinement{
         }
         else std::cerr << "ERROR in SimulationNVTEnsemble: Unknown flag for setting _flag\n";
         
+        //std::cerr << old_e << "\t" << new_e << "\n" ;//<< exp(-_beta*(new_e - old_e)) << std::endl;
         
-        //std::cerr << old_e << "\t" << new_e << "\t" << exp(-_beta*(new_e - old_e)) << std::endl;
         
         if (old_e > 749 && !_equilibrate) {
             std::cout << computeEnergy() << std::endl;
@@ -286,9 +288,6 @@ namespace TetrahedralParticlesInConfinement{
             std::cerr << "You may need to increase the size of your Neighbor List criterion" << std::endl;
             exit(0);
         }
-        
-        
-        //std::cout << _flag << "\t" <<  old_e << "\t" <<  new_e << std::endl;
         
         old_flag.first = _flag;
         old_flag.second = i;
@@ -383,10 +382,17 @@ namespace TetrahedralParticlesInConfinement{
     }
     
     void SimulationNVTEnsemble::saveConfig(int index){
+        
+        assert(index < _molecule_list.full_colloid_list.size());
         _old_config.clear();
         
-        if (_flag == TRANSLATE)
+        if (_flag == TRANSLATE){
+            //int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
+            //_old_molecule = _molecule_list.molecule_list[molecule_id];
             _old_config.push_back(_molecule_list.full_colloid_list[index]->_center_of_mass);
+
+        }
+            //_old_config.push_back(_molecule_list.full_colloid_list[index]->_center_of_mass);
         else if (_flag == ROTATE){
             _old_colloid = *(_molecule_list.full_colloid_list[index]);
             if (_core_flag)
@@ -403,6 +409,9 @@ namespace TetrahedralParticlesInConfinement{
     
     void SimulationNVTEnsemble::revertConfig(int index){
         if (_flag == TRANSLATE){
+            //assert(_old_config.size()==1);
+            //int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
+            //_molecule_list.molecule_list[molecule_id] = _old_molecule;
             int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
             _molecule_list.molecule_list[molecule_id].setCenterOfMass(_old_config[0],_box);
         }
@@ -411,9 +420,11 @@ namespace TetrahedralParticlesInConfinement{
             int dim = (int) _molecule_list.molecule_list[molecule_id].colloid_list.size();
             int colloid_index = index%dim;
             _molecule_list.molecule_list[molecule_id].colloid_list[colloid_index] = _old_colloid;
-            if (_core_flag)
+            if (_core_flag){
                 _molecule_list.molecule_list[_molecule_list.full_colloid_list[index]->molecule_id].orientation_list =
                 _old_config;
+            }
+            
         }
         else if (_flag == ROTATEMOLECULE){
             int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
@@ -468,9 +479,10 @@ namespace TetrahedralParticlesInConfinement{
         //borrowed from f.19 at www.ccl.net allen and tildsey codes
         
         //or code from frenkel & smit
-        _max_displacement = TetrahedralParticlesInConfinement::distance(_molecule_list.full_colloid_list[i]->_center_of_mass, _coords_since_last_neighbor_build[i]);
+        assert(_coords_since_last_neighbor_build.size() == _molecule_list.full_colloid_list.size());
         
-        //return false;
+        _max_displacement = TetrahedralParticlesInConfinement::distance(_molecule_list.full_colloid_list[i]->_center_of_mass, _coords_since_last_neighbor_build[i], _box);
+        
         if (_max_displacement > _delta_skin)
             return true;
         

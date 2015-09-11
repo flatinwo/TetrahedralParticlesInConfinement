@@ -161,6 +161,7 @@ namespace TetrahedralParticlesInConfinement{
             if (_iteration_count > count_max) {
                 std::cerr << "MAXIMUM NUMBER OF ITERATIONS REACHED! \n";
                 writeFinalResults();
+                std::cout << *_NVT;
                 exit(0);
             }
         }

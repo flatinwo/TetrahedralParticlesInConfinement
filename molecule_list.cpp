@@ -82,13 +82,17 @@ namespace TetrahedralParticlesInConfinement {
         untranslate(box.box_lo, x_c);
         untranslate(box.box_hi, x_c);
         
+        
         for (unsigned int i=0; i<molecule_list.size(); i++) {
             coord_t x = molecule_list[i].colloid_list[0]._center_of_mass;
             untranslate(x, x_c);
             molecule_list[i].setCenterOfMass(x,box);
         }
         
-        _box = box; //what is the copy constructor for
+        _box = box;
+        
+        
+        //now adjust box... so that box origin is in the center
         buildFullColloidListPointer();
         
     }

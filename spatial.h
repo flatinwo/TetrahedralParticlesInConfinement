@@ -40,8 +40,8 @@ namespace TetrahedralParticlesInConfinement{
     
     //are particles in the box
     bool are_particles_in_box(coord_list_t& x, Box& box);
-    
-    void pbc(coord_t& x, coord_t& period, bool_list_t&);
+
+    void pbc(coord_t& x, const coord_t& period, const bool_list_t&);
     
     void pbc(double& x, double period, bool periodic=true);
     void pbcwithfloor(double& x, double period, bool periodic=true);

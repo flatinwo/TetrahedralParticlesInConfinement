@@ -20,7 +20,6 @@ namespace TetrahedralParticlesInConfinement {
         if (colloid1.molecule_id == colloid2.molecule_id)
             return 0.;
         
-        
         //std::cout << colloid1.molecule_id << "\t" << colloid2.molecule_id << std::endl;
         
         coord_t x1 = colloid1._center_of_mass;
@@ -39,9 +38,10 @@ namespace TetrahedralParticlesInConfinement {
             return 0.;
         }
         else{
-            if (colloid1.core || colloid2.core) {
-                return 0.;
-            }
+            
+            if (colloid1.core || colloid2.core) 
+             return 0.;
+                
             info.overlap = false;
             return (-1.*info.energy_scale*compute_orientations(colloid1,colloid2,temp,info));
         }
@@ -52,8 +52,8 @@ namespace TetrahedralParticlesInConfinement {
     double compute_pair_energy(TetramerPatchyColloid& molecule1, TetramerPatchyColloid& molecule2, Box& box, pair_info& info){
         
         double energy = 0.;
-        for (unsigned int i=1; i<molecule1.colloid_list.size(); i++) {
-            for (unsigned int j=1; j<molecule2.colloid_list.size(); j++) {
+        for (unsigned int i=0; i<molecule1.colloid_list.size(); i++) {
+            for (unsigned int j=0; j<molecule2.colloid_list.size(); j++) {
                 energy += compute_pair_energy(molecule1.colloid_list[i], molecule2.colloid_list[j], box, info);
             }
         }
@@ -259,7 +259,7 @@ namespace TetrahedralParticlesInConfinement {
         double e = 0.;
         int dim = (int) molecule_list.molecule_list[index0].colloid_list.size();
 
-        for (unsigned int i=1; i < dim; i++){
+        for (unsigned int i=0; i < dim; i++){
             int index = dim*index0 + i;
             for (unsigned int j=0; j<neighbor_list[index].size(); j++) {
                 int nbr = neighbor_list[index][j];
@@ -306,7 +306,7 @@ namespace TetrahedralParticlesInConfinement {
         double e = 0.;
         int dim = (int) molecule_list.molecule_list[index0].colloid_list.size();
         
-        for (unsigned int i=1; i < dim; i++){
+        for (unsigned int i=0; i < dim; i++){
             int index = dim*index0 + i;
             for (unsigned int j=0; j<molecule_list.full_colloid_list.size(); j++) {
                 if (j!=index)
@@ -326,10 +326,9 @@ namespace TetrahedralParticlesInConfinement {
         
         double e = 0.;
         
-        for (unsigned int i=0; i<molecule_list.full_colloid_list.size(); i++) {
-            for (unsigned int j=i+1; j<molecule_list.full_colloid_list.size(); j++) {
-                
-                e += compute_pair_energy(*(molecule_list.full_colloid_list[i]),*(molecule_list.full_colloid_list[j]),box, pair_info);
+        for (unsigned int i=0; i < molecule_list.full_colloid_list.size(); i++) {
+            for (unsigned int j=i+1; j< molecule_list.full_colloid_list.size(); j++) {
+                e += compute_pair_energy(*(molecule_list.full_colloid_list[i]),*(molecule_list.full_colloid_list[j]), box, pair_info);
                 
                 if (pair_info.overlap) {                    
                     return ((double) BIG_NUM);

@@ -116,7 +116,7 @@ namespace TetrahedralParticlesInConfinement{
         return sqrt(distancesq(x1,x2));
     }
     
-    void pbc(coord_t& x, coord_t& period, bool_list_t& periodic){
+    void pbc(coord_t& x, const coord_t& period, const bool_list_t& periodic){
         for (unsigned int j=0; j<x.size();j++){
             pbc(x[j],period[j],periodic[j]);
         }
