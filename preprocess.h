@@ -23,7 +23,7 @@ namespace TetrahedralParticlesInConfinement {
     void unmapcentroid(coord_list_t& x, Box& box);
     void unmapwithfloor(coord_list_t&x, coord_t& x_c, Box& box); // this is for view, and here we will use the floor command
     
-    coord_t centroid(coord_list_t& x, Box& box);
+    coord_t centroid(coord_list_t& x, const Box& box);
     
     coord_t centroid(coord_list_t& x);
     

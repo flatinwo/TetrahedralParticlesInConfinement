@@ -122,7 +122,7 @@ namespace TetrahedralParticlesInConfinement {
         return xc;
     }
     
-    coord_t centroid(coord_list_t& x, Box& box){
+    coord_t centroid(coord_list_t& x, const Box& box){
         assert(x.size()>0);
         coord_t rc(3,0.0);
         coord_t x_ref = x[0];
