@@ -242,7 +242,7 @@ namespace TetrahedralParticlesInConfinement{
                     std::cout << *this;
                     buildNeighborList();
                     old_e = computeEnergy(i);
-                    computeEnergy();
+                    std::cout << i << "\t" << old_e << "\t" << computeEnergy() << std::endl;
                 }
                 Rotation(i);
                 if (!isRotationGood(i)) {
@@ -280,9 +280,9 @@ namespace TetrahedralParticlesInConfinement{
         
         
         if (old_e > 749 && !_equilibrate) {
-            std::cout << computeEnergy() << std::endl;
+            std::cout << computeEnergy() << "\t" << computeEnergy(i) <<  std::endl;
             buildNeighborList();
-            std::cout << computeEnergy() << std::endl;
+            std::cout << computeEnergy() << "\t" << computeEnergy(i) << std::endl;
             std::cout << *this;
             std::cerr << "Initial Energy during equilibration run is too high" << std::endl;
             std::cerr << "You may need to increase the size of your Neighbor List criterion" << std::endl;
