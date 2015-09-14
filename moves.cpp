@@ -139,7 +139,7 @@ namespace TetrahedralParticlesInConfinement {
         matrix_vector_product(QR.second, colloid1._center_of_mass);
         
         for (unsigned int i=0; i<3; i++) {
-            //pbc(colloid1._center_of_mass[i], box.box_period[i], box.periodic[i]);
+            pbc(colloid1._center_of_mass[i], box.box_period[i], box.periodic[i]);
         }
         
     }
