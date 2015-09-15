@@ -146,7 +146,7 @@ namespace TetrahedralParticlesInConfinement{
         
         assert(x.size() > 0);
         
-        //unmapwithfloor(x, _simulation._box.box_lo, _simulation._box);
+        unmapwithfloor(x, _simulation._box.box_lo, _simulation._box);
         //unmap(x, _simulation._box.box_lo, _simulation._box);
         
         _os << x.size() << "\n";
