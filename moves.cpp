@@ -136,8 +136,9 @@ namespace TetrahedralParticlesInConfinement {
     void rotate(Colloid& colloid1, Box& box, coord_pair& QR){
         colloid1.quaternion = hamilton_product(QR.first, colloid1.quaternion);
         matrix_vector_product(QR.second, colloid1.orientation);
-        matrix_vector_product(QR.second, colloid1._center_of_mass);
+        matrix_vector_product(QR.second, colloid1._center_of_mass); //not needed because this relative to arbitrary zero
         
+        //this is not needed either
         for (unsigned int i=0; i<3; i++) {
             pbc(colloid1._center_of_mass[i], box.box_period[i], box.periodic[i]);
         }
@@ -183,7 +184,7 @@ namespace TetrahedralParticlesInConfinement {
         colloid1.quaternion = hamilton_product(QR.first, colloid1.quaternion); //note order of the product matters
         matrix_vector_product(QR.second, colloid1.orientation);
         
-        for (int i=0; i<3; i++){
+        for (unsigned int i=0; i<3; i++){
             colloid1._center_of_mass[i] = colloid_ref._center_of_mass[i] + bond_length*colloid1.orientation[i];
             pbc(colloid1._center_of_mass[i], box.box_period[i], box.periodic[i]);
         }
