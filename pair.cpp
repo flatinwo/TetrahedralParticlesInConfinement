@@ -29,7 +29,7 @@ namespace TetrahedralParticlesInConfinement {
         double rsq = temp.first;
         coord_t dx = temp.second;
         
-        if (rsq < info.overlap_criteria) {
+        if (rsq <= info.overlap_criteria) {
             info.overlap = true;
             return ((double) BIG_NUM);
         }

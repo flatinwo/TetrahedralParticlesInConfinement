@@ -387,9 +387,9 @@ namespace TetrahedralParticlesInConfinement{
         _old_config.clear();
         
         if (_flag == TRANSLATE){
-            //int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
-            //_old_molecule = _molecule_list.molecule_list[molecule_id];
-            _old_config.push_back(_molecule_list.full_colloid_list[index]->_center_of_mass);
+            int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
+            _old_molecule = _molecule_list.molecule_list[molecule_id];
+            //_old_config.push_back(_molecule_list.full_colloid_list[index]->_center_of_mass);
 
         }
             //_old_config.push_back(_molecule_list.full_colloid_list[index]->_center_of_mass);
@@ -410,10 +410,10 @@ namespace TetrahedralParticlesInConfinement{
     void SimulationNVTEnsemble::revertConfig(int index){
         if (_flag == TRANSLATE){
             //assert(_old_config.size()==1);
-            //int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
-            //_molecule_list.molecule_list[molecule_id] = _old_molecule;
             int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
-            _molecule_list.molecule_list[molecule_id].setCenterOfMass(_old_config[0],_box);
+            _molecule_list.molecule_list[molecule_id] = _old_molecule;
+           // int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
+           // _molecule_list.molecule_list[molecule_id].setCenterOfMass(_old_config[0],_box);
         }
         else if (_flag == ROTATE){
             int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
