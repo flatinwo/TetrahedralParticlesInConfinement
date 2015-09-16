@@ -72,8 +72,10 @@ namespace TetrahedralParticlesInConfinement{
         _density = density;
         double s = pow(old_density/_density,1./3.);
         
-        rescale(_molecule_list, s);
-        rescale(_box, s);
+        //rescale(_molecule_list, s);
+        //rescale(_box, s);
+        
+        rescale(_molecule_list, _box, s);
         
         computeVolume();
         buildNeighborList();

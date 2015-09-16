@@ -406,6 +406,20 @@ namespace TetrahedralParticlesInConfinement {
         
     }
     
+    void rescale(MoleculeList& System, Box& box, double s){
+        rescale(box, s);
+        
+        int dim = (int) System.molecule_list.size();
+        
+        assert(dim>0);
+        
+        for (int i=0; i<dim; i++) {
+            coord_t x = System.molecule_list[i].colloid_list[0]._center_of_mass;
+            rescale(x, s);
+            System.molecule_list[i].setCenterOfMass(x,box);
+        }
+    }
+    
     // Generate gaussian random number, mean zero and variance 1
     double gasdev(){
         static bool available = false;
