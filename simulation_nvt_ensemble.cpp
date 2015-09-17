@@ -163,6 +163,20 @@ namespace TetrahedralParticlesInConfinement{
         
     }
     
+    
+    void SimulationNVTEnsemble::run(){
+        
+        int nmolecules = (int) _molecule_list.molecule_list.size();
+        
+        for (int j=0; j< _nsubmoves; j++) {  //note 1 cycle = _nsubmoves*nmolecules
+            int p = _rng.randInt()%_n;
+            attemptMove(p);
+        }
+        _steps++;
+        if ((!_equilibrate) && (_steps%100==0)) _ofile_energy << _steps << "\t" << _E / (double) nmolecules <<  "\t" << getDensity() << std::endl;
+        
+    }
+    
     void SimulationNVTEnsemble::computeVolume(){
         int dim = (int) _box.box_period.size();
         _volume = 1.;

@@ -49,6 +49,7 @@ namespace TetrahedralParticlesInConfinement{
         
         
         void run(int);
+        void run();
         
         //file handling
         void openFile();

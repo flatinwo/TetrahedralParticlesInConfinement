@@ -53,10 +53,15 @@ namespace TetrahedralParticlesInConfinement {
     void SimulationNPTEnsemble::run(int nsteps){
         
         assert(vol_move_per_cycle > 1);
+        int nmoleculesplus1 = (int) _NVT.getMoleculeList().molecule_list.size() + 1;
+        int nmolecules = nmoleculesplus1 - 1;
+        
+        assert(nmoleculesplus1 > 2);
         
         for (int i=0; i<nsteps; i++) {
-            if (_rng.randInt()% vol_move_per_cycle == 0)
-                _NVT.run(1); //may not guarantee  symmetry of underlying markov chain, see pp. 119 Frenkel & Smit
+            int j = _rng.randInt()%nmoleculesplus1;
+            if (j<nmolecules)
+                _NVT.run();
             else
                 attemptVolumeMove();
             
