@@ -173,7 +173,7 @@ namespace TetrahedralParticlesInConfinement {
         }
         
     public:
-        void setPlateSeparation(double sep){ _separation = sep;}
+        void setPlateSeparation(double sep){ _separation = sep; _walls[1].position = _walls[0].position + _separation;}
         void setPlateAxis(Wall::Axis axis){_walls[0].axis = _walls[1].axis = axis;}
         std::vector<Wall>& getWalls(){return _walls;};
         
