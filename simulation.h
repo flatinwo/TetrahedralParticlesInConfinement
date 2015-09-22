@@ -41,6 +41,8 @@ namespace TetrahedralParticlesInConfinement {
         
         void addToMoleculeList(const coord_t&);
         void addMolecule();
+        void addPlates(Plates& plates);
+        void addMoleculeWithoutOverlaps();
         
         void removeMolecule(int);
         void removeMolecule();
@@ -73,6 +75,7 @@ namespace TetrahedralParticlesInConfinement {
         pair_info _pair_info;
         RandomNumberGenerator& _rng;
         coord_list_t _coords_since_last_neighbor_build;
+        Plates* confinement;
         
         //build two neighborlists, use in umbrella
         std::ofstream _ofile;

@@ -19,6 +19,7 @@ namespace TetrahedralParticlesInConfinement{
         _pair_info = pair_info();
         _steps = 0;
         _max_displacement = 0.;
+        confinement = NULL;
         buildNeighborList();
     }
     
@@ -103,7 +104,7 @@ namespace TetrahedralParticlesInConfinement{
 #pragma mark OTHERS
     
     void Simulation::addToMoleculeList(const coord_t& x_c){
-        _molecule_list.addToMoleculeList(x_c);
+        _molecule_list.addToMoleculeList(x_c,_box);
         buildNeighborList();
     }
     
@@ -118,6 +119,42 @@ namespace TetrahedralParticlesInConfinement{
         }
         
         addToMoleculeList(xc);
+    }
+    
+    
+    void Simulation::addMoleculeWithoutOverlaps(){
+        
+        //allow for max count
+        
+        addMolecule();
+        computeEnergy();
+        
+        while (_pair_info.overlap) {
+            removeMolecule();
+            addMolecule();
+            computeEnergy();
+        }
+    }
+    
+    void Simulation::addPlates(Plates& plate){
+        //first do not allow this to be called if system has been built already
+        int nmolecules = (int) _molecule_list.molecule_list.size();
+        
+        for (unsigned int i=0; i<nmolecules-1; i++) _molecule_list.popBackMolecule();  //clear molecule list except last molecule, which is at coordinates (1,1,1)
+        
+        confinement = &plate; //sets-up plates
+        
+        //set-up box, i.e. remove periodicity in one of the axis
+        assert(confinement->_walls[0].axis == confinement->_walls[1].axis); //make sure we have the walls in the same axis
+        assert(confinement->_walls[0].axis < _box.periodic.size());  //make sure axis specification is right
+        
+        
+        int m = confinement->_walls[0].axis;
+        _box.periodic[m] = false;
+        _box.box_hi[m] = confinement->_walls[1].position;
+        _box.box_lo[m] = confinement->_walls[0].position;
+        _box.box_period[m] = _box.box_hi[m] - _box.box_lo[m];
+        
     }
     
     void Simulation::removeMolecule(int i){

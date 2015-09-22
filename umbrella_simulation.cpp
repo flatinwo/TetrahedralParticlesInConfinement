@@ -14,6 +14,7 @@ namespace TetrahedralParticlesInConfinement {
         _nstepsMC = 10;
         _umbrella_type = DENSITY;
         _NVT = NULL;
+        _E = 1000000.;
         //_Gibbs = NULL;
         
     }
@@ -51,6 +52,7 @@ namespace TetrahedralParticlesInConfinement {
         //write getter in simulation class to get any desired parameter for umbrella
         //use overloaded function
         
+        std::cout << "===============\n";
         for (int i=0; i<nstep; i++) {
             
             
@@ -78,6 +80,8 @@ namespace TetrahedralParticlesInConfinement {
                 _E = E_new;
                 saveConfig(_NPT->getDensity());
             }
+            
+            if (i%100) std::cout << _NPT->getDensity() << std::endl;
             
             if (!_equilibrate) {
                 _ofile << _steps++ << "\t" << _NPT->getDensity() << std::endl;

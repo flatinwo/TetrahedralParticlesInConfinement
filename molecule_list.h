@@ -39,6 +39,7 @@ namespace TetrahedralParticlesInConfinement {
         void addToMoleculeList(TetramerPatchyColloid&);
         void addToMoleculeList(const coord_t& center_of_mass);
         void addToMoleculeList(const coord_list_t& center_of_mass, const coord_list_t& orientation, const Box& box);
+        void addToMoleculeList(const coord_t& center_of_mass, const Box& box);
         
         coord_list_t& getMoleculeListCoord();
         coord_list_t& getMoleculeListOrientation();

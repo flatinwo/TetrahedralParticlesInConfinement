@@ -14,6 +14,8 @@
 
 namespace TetrahedralParticlesInConfinement {
     
+#define ONEOVER15 0.06666666666666666
+    
     double compute_pair_energy(Colloid& colloid1, Colloid& colloid2,
                                Box& box, pair_info& info){
         
@@ -212,6 +214,71 @@ namespace TetrahedralParticlesInConfinement {
         
         return e;
         
+    }
+    
+    double compute_pair_energy_wall(int index, MoleculeList& molecule_list,
+                                    Box& box, Wall& wall, pair_info& info){
+        
+        double dz;
+        int m = wall.axis;
+        
+        if (wall.location == wall.BOTTOM)
+            dz = molecule_list.full_colloid_list[index]->_center_of_mass[m] - wall.position;
+        else
+            dz = wall.position - molecule_list.full_colloid_list[index]->_center_of_mass[m];
+        
+        if (dz < 0.) {
+            info.overlap = true;
+            return BIG_NUM;
+            std::cerr << "Particle on wrong side of the wall\n";
+            exit(EXIT_FAILURE);
+        }
+        
+        //if (dz >= info.cut_off_criteria)
+        if (dz >= box.box_period[m])
+            return 0.;
+        else{
+            double rinv = 1./dz;
+            double r3inv = rinv*rinv*rinv;
+            double r9inv = r3inv*r3inv*r3inv;
+            
+            return info.energy_scale*(ONEOVER15*r9inv - 0.5*r3inv);
+        }
+        
+    }
+    
+    double compute_pair_energy_plates(int index, MoleculeList& molecule_list,
+                                      Box& box, Plates& plates, pair_info& info){
+        return compute_pair_energy_wall(index, molecule_list, box, plates.getWalls()[0], info) +
+               compute_pair_energy_wall(index, molecule_list, box, plates.getWalls()[1], info);
+        
+    }
+    
+    
+    double compute_pair_energy_plates(MoleculeList& molecule_list,
+                                      Box& box, Plates& plates, pair_info& info){
+        
+        double energy = 0.;
+        int n = (int) molecule_list.full_colloid_list.size();
+        
+        for (unsigned int index=0; index < n; index++)
+            energy += compute_pair_energy_plates(index, molecule_list, box, plates, info);
+        
+        return energy;
+    }
+    
+    
+    double compute_pair_molecule_energy_plates(int index0, MoleculeList& molecule_list,
+                                               Box& box, Plates& plates, pair_info& info){
+        //index is molecule id
+        int n = (int) molecule_list.molecule_list[index0].colloid_list.size();
+        double energy = 0.;
+        
+        for (unsigned int i=0; i<n; i++) {
+            int index = n*index0 + i;
+            energy += compute_pair_energy_plates(index, molecule_list, box, plates, info);
+        }
+        return energy;
     }
     
     double compute_pair_energy_full(int index, MoleculeList& molecule_list,

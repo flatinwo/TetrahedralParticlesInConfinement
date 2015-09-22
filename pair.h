@@ -110,6 +110,19 @@ namespace TetrahedralParticlesInConfinement {
                                         Box& box,
                                         pair_info& pair_info);
     
+    double compute_pair_energy_wall(int index, MoleculeList& molecule_list,
+                                    Box& box, Wall& wall, pair_info& info);
+    
+    double compute_pair_energy_plates(int index, MoleculeList& molecule_list,
+                                      Box&, Plates& plates, pair_info& info);
+    
+    double compute_pair_energy_plates(MoleculeList& molecule_list,
+                                      Box&, Plates& plates, pair_info& info);
+    
+    double compute_pair_molecule_energy_plates(int index, MoleculeList& molecule_list,
+                                               Box&, Plates& plates, pair_info& info);
+
+    
     
     
     double compute_orientation(Colloid& colloid1, Colloid& colloid2, double_coord_t& dx, pair_info& info);

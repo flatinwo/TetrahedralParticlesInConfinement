@@ -186,21 +186,33 @@ namespace TetrahedralParticlesInConfinement{
     
     double SimulationNVTEnsemble::computeEnergy(int index){
         _pair_info.overlap = false;
-        return compute_pair_energy_full(index, _molecule_list,
-                                   _box, _pair_info,
-                                   _neighbor_list.first,
-                                   _neighbor_list.second);
+        
+        double energy = compute_pair_energy_full(index, _molecule_list,
+                                                 _box, _pair_info,
+                                                 _neighbor_list.first,
+                                                 _neighbor_list.second);
+        
+        if  (confinement == NULL)
+            return energy;
+        else
+            return (energy + compute_pair_energy_plates(index, _molecule_list, _box, *confinement, _pair_info));
         
         /*return compute_pair_energy(index, _molecule_list,
                                         _box, _pair_info);*/
     }
     
+    
+    //can use function pointer here
     double SimulationNVTEnsemble::computeEnergy(){
         _pair_info.overlap = false;
-        return compute_pair_energy_full(_molecule_list,
-                                   _box, _pair_info,
-                                   _neighbor_list.first,
-                                   _neighbor_list.second);
+        double energy = compute_pair_energy_full(_molecule_list,
+                                                _box, _pair_info,
+                                                _neighbor_list.first,
+                                                _neighbor_list.second);;
+        if  (confinement == NULL)
+            return energy;
+        else
+            return (energy + compute_pair_energy_plates(_molecule_list, _box, *confinement, _pair_info));
         
         /*return compute_pair_energy(_molecule_list,
                                    _box, _pair_info);*/
@@ -210,7 +222,13 @@ namespace TetrahedralParticlesInConfinement{
     double SimulationNVTEnsemble::computeMoleculeEnergy(int index){
         _pair_info.overlap = false;
         assert(index < _molecule_list.molecule_list.size());
-        return compute_pair_molecule_energy_full(index, _molecule_list, _box, _pair_info,_neighbor_list.first, _neighbor_list.second);
+        double energy = compute_pair_molecule_energy_full(index, _molecule_list, _box, _pair_info,_neighbor_list.first, _neighbor_list.second);
+        
+        if (confinement == NULL) {
+            return energy;
+        }
+        else
+            return (energy + compute_pair_molecule_energy_plates(index, _molecule_list, _box, *confinement, _pair_info));
         
         //return compute_pair_molecule_energy(index, _molecule_list, _box, _pair_info);
     }

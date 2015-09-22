@@ -144,6 +144,44 @@ namespace TetrahedralParticlesInConfinement {
         }
     };
     
+    struct Wall{
+        Wall():
+        type("WCA"),
+        position(0.),
+        location(BOTTOM),
+        axis(Z){
+            
+        }
+        
+        double position;
+        std::string type;
+        enum Axis {X, Y, Z};
+        enum Location {TOP, BOTTOM};
+        Axis axis;
+        Location location;
+    };
+    
+    struct Plates{
+        friend class Simulation;
+        
+        Plates():
+        _separation(6.0){
+            for (unsigned int i=0; i<2; i++) _walls.push_back(Wall());
+            
+            _walls[1].position = _separation;
+            _walls[1].location = Wall::TOP;
+        }
+        
+    public:
+        void setPlateSeparation(double sep){ _separation = sep;}
+        void setPlateAxis(Wall::Axis axis){_walls[0].axis = _walls[1].axis = axis;}
+        std::vector<Wall>& getWalls(){return _walls;};
+        
+    protected:
+        double _separation;
+        std::vector<Wall> _walls;
+    };
+    
 }
 
 #endif

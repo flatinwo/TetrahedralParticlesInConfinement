@@ -170,7 +170,7 @@ namespace TetrahedralParticlesInConfinement{
     
     void AnalyzeSimulationStepSize::npt_run(int nsteps){
         
-        const int count_max = 2*_count_max;
+        const int count_max = 3*_count_max;
         double old_e, new_e;
         double old_density, new_density;
         

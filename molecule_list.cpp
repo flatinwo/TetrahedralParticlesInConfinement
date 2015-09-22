@@ -43,6 +43,17 @@ namespace TetrahedralParticlesInConfinement {
         buildFullColloidListPointer();
     }
     
+    //uses a random orientation, for detailed balance pick random orientation
+    void MoleculeList::addToMoleculeList(const coord_t& x_c, const Box& box){
+        int n = (int) molecule_list.size();
+        TetramerPatchyColloid A(_bond_length);
+        A.setCenterOfMass(x_c,box);
+        A.setMoleculeID(n);
+        //A.setOrientationRandomly();
+        molecule_list.push_back(A);
+        buildFullColloidListPointer();
+    }
+    
     
     void MoleculeList::addToMoleculeList(const coord_list_t& x_c, const coord_list_t& orientation, const Box& box){
         int n = (int) molecule_list.size();
