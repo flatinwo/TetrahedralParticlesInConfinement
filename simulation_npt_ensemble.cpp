@@ -96,7 +96,7 @@ namespace TetrahedralParticlesInConfinement {
         _NVT.setDensity(new_density);
         
         double new_e = _NVT.computeEnergy();
-        double Npart = _NVT.getFullColloidListCoord().size();
+        double Npart = _NVT.getMoleculeList().molecule_list.size();
         
         double arg = (new_e - old_e) + _pressure*(new_v - old_v)
         - ((double) (Npart+ 1))*_NVT.getTemperature()*log(new_v/old_v);
