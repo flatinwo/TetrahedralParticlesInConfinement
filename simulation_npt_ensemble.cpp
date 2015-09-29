@@ -81,8 +81,10 @@ namespace TetrahedralParticlesInConfinement {
         double old_v = _NVT.getVolume();
         
         if (old_e > 10){
-            
+            std::cerr << "Old energy too high in configuration\n";
+            std::cout << _NVT;
             std::cout << old_e << std::endl;
+            exit(2);
         }
         
         double log_new_v = log(old_v) + _volume_info.delta_move*_rng.randNormal();
@@ -115,6 +117,7 @@ namespace TetrahedralParticlesInConfinement {
             return 0;
         }
         else{
+            _NVT._E += (new_e - old_e);
             _volume_info.accepted_moves++;
             return 1;
             
