@@ -19,6 +19,9 @@
 //of passing by reference, because of the acceptance probability
 //how often should i build the neighbor list?
 
+//try low density NVT calculation... are there any failures?
+//also fix box to always be from zeros
+
 //need to assess rotation move
 
 namespace TetrahedralParticlesInConfinement{
@@ -263,6 +266,13 @@ namespace TetrahedralParticlesInConfinement{
         if (_flag == TRANSLATE) {
             int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
             old_e = computeMoleculeEnergy(molecule_id);
+            if (old_e > 749 ){// && !_equilibrate){
+                std::cout << computeEnergy() << std::endl;
+                std::cout << *this;
+                buildNeighborList();
+                old_e = computeMoleculeEnergy(molecule_id);
+                std::cout << i << "\t" << old_e << "\t" << computeEnergy() << std::endl;
+            }
             Translation(i);
             if (checkNeighborList(i)) buildNeighborList();
             new_e = computeMoleculeEnergy(molecule_id);
@@ -304,6 +314,13 @@ namespace TetrahedralParticlesInConfinement{
         else if (_flag == ROTATEMOLECULE){
             int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
             old_e = computeMoleculeEnergy(molecule_id);
+            if (old_e > 749 ){// && !_equilibrate){
+                std::cout << computeEnergy() << std::endl;
+                std::cout << *this;
+                buildNeighborList();
+                old_e = computeMoleculeEnergy(molecule_id);
+                std::cout << i << "\t" << old_e << "\t" << computeEnergy() << std::endl;
+            }
             Rotation(i);
             if (checkNeighborList(i)) buildNeighborList();
             new_e = computeMoleculeEnergy(molecule_id);
@@ -521,7 +538,7 @@ namespace TetrahedralParticlesInConfinement{
             return true;
         
         //fix to allow for different numbers of colloids
-        if (_flag == ROTATEMOLECULE) {
+        if (_flag == ROTATEMOLECULE ){//|| _flag == TRANSLATE) {
             int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
             for (unsigned int k=0; k<5; k++) {
                 int j = molecule_id*5 + k;

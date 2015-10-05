@@ -84,6 +84,9 @@ namespace TetrahedralParticlesInConfinement {
             std::cerr << "Old energy too high in configuration\n";
             std::cout << _NVT;
             std::cout << old_e << std::endl;
+            std::cout << _NVT.computeEnergy();
+            _NVT.buildNeighborList();
+            std::cout << _NVT.computeEnergy();
             exit(2);
         }
         

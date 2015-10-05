@@ -74,7 +74,6 @@ namespace TetrahedralParticlesInConfinement{
         double _E, _delE;
         bool _core_flag;
         double _cos_angle_max;
-        double _delta_skin;
         
         int attemptMove(int);
         int attemptSubMove(int);

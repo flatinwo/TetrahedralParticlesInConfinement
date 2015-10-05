@@ -19,6 +19,7 @@ namespace TetrahedralParticlesInConfinement{
         _pair_info = pair_info();
         _steps = 0;
         _max_displacement = 0.;
+        _delta_skin = 0.5*(sqrt(_neighbor_list.second.cut_off_sqd) - sqrt(_pair_info.cut_off_criteria));
         confinement = NULL;
         buildNeighborList();
     }
@@ -58,6 +59,7 @@ namespace TetrahedralParticlesInConfinement{
     
     void Simulation::setNeighborInfo(neighbor_list_info& info){
         _neighbor_list.second = info;
+        _delta_skin = 0.5*(sqrt(_neighbor_list.second.cut_off_sqd) - sqrt(_pair_info.cut_off_criteria));
     }
     
     void Simulation::resetSteps(){

@@ -64,6 +64,7 @@ namespace TetrahedralParticlesInConfinement {
         int _nmovespercycle;
         int _steps;
         double _max_displacement;
+        double _delta_skin;
         
         bool _equilibrate;
         int _update_neighbors_frequency_per_cycle;
