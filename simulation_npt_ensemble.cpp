@@ -58,6 +58,8 @@ namespace TetrahedralParticlesInConfinement {
         
         assert(nmoleculesplus1 > 2);
         
+        _NVT._E = _NVT.computeEnergy();
+        
         for (int i=0; i<nsteps; i++) {
             int j = _rng.randInt()%nmoleculesplus1;
             if (j<nmolecules)
