@@ -19,7 +19,7 @@ namespace TetrahedralParticlesInConfinement {
         MoleculeList();
         ~MoleculeList(); //why does destructor code stop working
         
-        const int nparticle_per_molecule;
+        int nparticle_per_molecule;
         
         std::vector<TetramerPatchyColloid> molecule_list;
         std::vector<Colloid*> full_colloid_list;

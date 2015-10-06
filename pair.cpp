@@ -300,7 +300,8 @@ namespace TetrahedralParticlesInConfinement {
             int nbr = neighbor_list[index][j];
             e += compute_pair_energy(*(molecule_list.full_colloid_list[index]),*(molecule_list.full_colloid_list[nbr]),
                                      box, pair_info);
-            if (pair_info.overlap) {
+
+	    if (pair_info.overlap) {
                 return ((double) n*BIG_NUM);
             }
         }

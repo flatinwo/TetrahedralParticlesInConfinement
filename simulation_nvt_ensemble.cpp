@@ -261,7 +261,13 @@ namespace TetrahedralParticlesInConfinement{
         
         saveConfig(i);
         if (checkNeighborList(i)) buildNeighborList();
+       
+
+	//std::cerr << "before\t" << i << "\t" << _flag << "\t" << distancesq(_molecule_list.full_colloid_list[236]->_center_of_mass,
+	//			      				      _molecule_list.full_colloid_list[561]->_center_of_mass,
+	//			     				       _box) << std::endl;
         
+ 
         //make moves, translate, rotate a colloid, or rotate molecule
         if (_flag == TRANSLATE) {
             int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
@@ -331,9 +337,9 @@ namespace TetrahedralParticlesInConfinement{
         
         
         if (old_e > 749 && !_equilibrate) {
-            std::cout << computeEnergy() << "\t" << computeEnergy(i) <<  std::endl;
+            std::cout << computeEnergy() << "\t" << computeEnergy(i) << "\t" << i << "\t" << _flag <<  std::endl;
             buildNeighborList();
-            std::cout << computeEnergy() << "\t" << computeEnergy(i) << std::endl;
+            std::cout << computeEnergy() << "\t" << computeEnergy(i) << "\t" << i << "\t" << _flag <<  std::endl;
             std::cout << *this;
             std::cerr << "Initial Energy during equilibration run is too high" << std::endl;
             std::cerr << "You may need to increase the size of your Neighbor List criterion" << std::endl;
@@ -538,7 +544,7 @@ namespace TetrahedralParticlesInConfinement{
             return true;
         
         //fix to allow for different numbers of colloids
-        if (_flag == ROTATEMOLECULE ){//|| _flag == TRANSLATE) {
+        if (_flag == ROTATEMOLECULE || _flag == TRANSLATE) {
             int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
             for (unsigned int k=0; k<5; k++) {
                 int j = molecule_id*5 + k;

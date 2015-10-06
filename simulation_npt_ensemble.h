@@ -42,7 +42,9 @@ namespace TetrahedralParticlesInConfinement{
         SimulationNVTEnsemble& _NVT;
         RandomNumberGenerator& _rng;
         move_info _volume_info;
-        
+	MoleculeList old_list;
+	Box	old_box; 
+
         int attemptVolumeMove();
     };
 }

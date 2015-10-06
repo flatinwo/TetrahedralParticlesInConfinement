@@ -1,6 +1,6 @@
 //
 //  simulation_npt_ensemble.cpp
-//  TetrahedralParticlesInConfinement
+// :no TetrahedralParticlesInConfinement
 //
 //  Created by Folarin Latinwo on 8/10/15.
 //  Copyright (c) 2015 Folarin Latinwo. All rights reserved.
@@ -8,6 +8,7 @@
 
 #include "simulation_npt_ensemble.h"
 #include <cassert>
+//#include "spatial.h"
 
 namespace TetrahedralParticlesInConfinement {
     
@@ -81,7 +82,13 @@ namespace TetrahedralParticlesInConfinement {
         
         double old_e = _NVT.computeEnergy();
         double old_v = _NVT.getVolume();
-        
+
+//	std::cerr << "pressure\t\t" << distancesq(_NVT._molecule_list.full_colloid_list[236]->_center_of_mass,
+//				      				     _NVT._molecule_list.full_colloid_list[561]->_center_of_mass,
+//				     				       _NVT._box) << std::endl;
+        old_list = _NVT._molecule_list;
+	old_box = _NVT._box;      
+ 
         if (old_e > 10){
             std::cerr << "Old energy too high in configuration\n";
             std::cout << _NVT;
@@ -111,19 +118,27 @@ namespace TetrahedralParticlesInConfinement {
         _volume_info.total_moves++;
         
         if (_NVT._pair_info.overlap){
-            _NVT.setDensity(old_density);
+//            _NVT.setDensity(old_density);
+            _NVT._molecule_list = old_list;
+	    _NVT._box = old_box; 
             _volume_info.rejected_moves++;
+//	    std::cerr << "rejected" << std::endl;
             return 0;
         }
         
         if (_rng.randDouble() > exp(-arg/_NVT.getTemperature())) {
-            _NVT.setDensity(old_density);
+            //_NVT.setDensity(old_density);
+            _NVT._molecule_list = old_list;
+	    _NVT._box = old_box;
             _volume_info.rejected_moves++;
+//	    std::cerr << "rejected\t" << arg << "\t" << new_e << "\t" << old_e << "\t" << new_density << "\t" << old_density << "\t" << _NVT.getDensity() <<  std::endl;
+
             return 0;
         }
         else{
             _NVT._E += (new_e - old_e);
             _volume_info.accepted_moves++;
+//	    std::cerr << "accepted\t" << arg << "\t" << new_e << "\t" << old_e << std::endl;
             return 1;
             
         }
