@@ -226,8 +226,12 @@ namespace TetrahedralParticlesInConfinement{
     double SimulationNVTEnsemble::computeEnergy(MoleculeList& system, Box& box){
         _pair_info.overlap = false;
         
-        coord_list_t _coords_since_last_neighbor_build = system.getFullColloidListCoord();
-        ::TetrahedralParticlesInConfinement::build_neighbor_list(_coords_since_last_neighbor_build, box, _neighbor_list);
+        //check if neighbor list needs to be rebuilt
+        if (checkNeighborList(system,box)) {
+            ::TetrahedralParticlesInConfinement::build_neighbor_list(system.getFullColloidListCoord(), box, _neighbor_list);
+        }
+        
+        
         assert(system.full_colloid_list.size() == _neighbor_list.first.size());
         double energy = compute_pair_energy_full(system,
                                                  box, _pair_info,
@@ -236,7 +240,7 @@ namespace TetrahedralParticlesInConfinement{
         if  (confinement == NULL)
             return energy;
         else
-            return (energy + compute_pair_energy_plates(_molecule_list, _box, *confinement, _pair_info));
+            return (energy + compute_pair_energy_plates(system, box, *confinement, _pair_info));
         
         
     }
@@ -548,6 +552,25 @@ namespace TetrahedralParticlesInConfinement{
         for (unsigned int i=0; i<_old_config[0].size(); i++){
             _max_displacement = std::max(std::abs(_new_config[i] - _old_config[0][i]),_max_displacement); //should this include, try again with pbc?
         }
+    }
+    
+    
+    bool SimulationNVTEnsemble::checkNeighborList(MoleculeList& system, Box& box){
+        assert(_coords_since_last_neighbor_build.size() == system.full_colloid_list.size());
+        
+        for (unsigned int molecule_id=0; molecule_id < system.molecule_list.size(); molecule_id++){
+            for (unsigned int k=0; k<5; k++) {
+                int j = molecule_id*5 + k;
+                _max_displacement = std::max(TetrahedralParticlesInConfinement::distance(system.full_colloid_list[j]->_center_of_mass, _coords_since_last_neighbor_build[j],box), _max_displacement);
+                
+                if (_max_displacement > _delta_skin) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
+        
     }
     
     bool SimulationNVTEnsemble::checkNeighborList(int i){

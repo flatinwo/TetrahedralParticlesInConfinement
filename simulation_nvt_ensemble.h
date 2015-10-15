@@ -95,6 +95,7 @@ namespace TetrahedralParticlesInConfinement{
         void    updateMoveInfo(int);
         
         bool checkNeighborList(int);
+        bool checkNeighborList(MoleculeList&, Box&);
         void computeMaxDisplacement();
         
         
