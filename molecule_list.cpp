@@ -20,6 +20,32 @@ namespace TetrahedralParticlesInConfinement {
     MoleculeList::~MoleculeList(){
     }
     
+    
+    /*
+    //copy constructor
+    MoleculeList::MoleculeList(const MoleculeList& other){
+        molecule_list = other.molecule_list;
+        nparticle_per_molecule = other.nparticle_per_molecule;
+        _bond_length = other._bond_length;
+        _is_good = other._is_good;
+        _is_bad = other._is_bad;
+        _box = other._box;
+        _center_of_mass_list = other._center_of_mass_list;
+        _center_of_mass_colloid_list = other._center_of_mass_colloid_list;
+        _orientation_list = other._orientation_list;
+        
+        buildFullColloidListPointer(); //check to see if this works
+        
+    }
+    
+    //assignment operator
+    MoleculeList MoleculeList::operator=(MoleculeList rhs){
+        std::swap(full_colloid_list, rhs.full_colloid_list);
+        return *this;
+    }
+    */
+    
+    
     void MoleculeList::buildMoleculeList(Lattice& lattice_input){
         molecule_list.clear();
         coord_list_t points = lattice_input.getLattice();

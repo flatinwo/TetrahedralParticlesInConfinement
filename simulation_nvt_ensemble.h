@@ -59,6 +59,7 @@ namespace TetrahedralParticlesInConfinement{
         double computeEnergy(int);
         double computeEnergy();
         double computeMoleculeEnergy(int);
+        double computeEnergy(MoleculeList& system, Box& box);
         
         void   computeVolume(); //make return
         double computePressure();

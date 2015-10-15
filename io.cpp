@@ -7,7 +7,6 @@
 //
 
 #include "io.h"
-#include "io.h"
 #include "spatial.h"
 #include <fstream>
 #include <iostream>
@@ -186,11 +185,12 @@ namespace TetrahedralParticlesInConfinement {
             text.push(word);
         }
         
-        for (unsigned int i=0; i<box.box_hi.size(); i++) {
-            box.box_hi[i] = std::stod(text.top());
-            box.box_period[i] = box.box_hi[i];
+        //it is iterator
+        for (auto it=box.box_hi.rbegin(); it != box.box_hi.rend(); ++it) {
+            *it = std::stod(text.top());
             text.pop();
         }
+        box.updatePeriod();
         
         
         coord_list_t x,r;

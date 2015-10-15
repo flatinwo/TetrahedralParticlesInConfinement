@@ -94,6 +94,11 @@ namespace TetrahedralParticlesInConfinement {
             box_period.clear();
         }
         
+        void updatePeriod(){
+            for (unsigned int i=0; i< box_lo.size(); i++)
+                box_period[i] = box_hi[i] - box_lo[i];
+        }
+        
         
     };
     

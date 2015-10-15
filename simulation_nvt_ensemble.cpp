@@ -211,7 +211,7 @@ namespace TetrahedralParticlesInConfinement{
         double energy = compute_pair_energy_full(_molecule_list,
                                                 _box, _pair_info,
                                                 _neighbor_list.first,
-                                                _neighbor_list.second);;
+                                                _neighbor_list.second);
         if  (confinement == NULL)
             return energy;
         else
@@ -219,6 +219,25 @@ namespace TetrahedralParticlesInConfinement{
         
         /*return compute_pair_energy(_molecule_list,
                                    _box, _pair_info);*/
+        
+    }
+    
+    //use function to compute total energy of alternate systems energy using different properties
+    double SimulationNVTEnsemble::computeEnergy(MoleculeList& system, Box& box){
+        _pair_info.overlap = false;
+        
+        coord_list_t _coords_since_last_neighbor_build = system.getFullColloidListCoord();
+        ::TetrahedralParticlesInConfinement::build_neighbor_list(_coords_since_last_neighbor_build, box, _neighbor_list);
+        assert(system.full_colloid_list.size() == _neighbor_list.first.size());
+        double energy = compute_pair_energy_full(system,
+                                                 box, _pair_info,
+                                                 _neighbor_list.first,
+                                                 _neighbor_list.second);
+        if  (confinement == NULL)
+            return energy;
+        else
+            return (energy + compute_pair_energy_plates(_molecule_list, _box, *confinement, _pair_info));
+        
         
     }
     

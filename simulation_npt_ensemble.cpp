@@ -8,7 +8,7 @@
 
 #include "simulation_npt_ensemble.h"
 #include <cassert>
-//#include "spatial.h"
+#include "moves.h"
 
 namespace TetrahedralParticlesInConfinement {
     
@@ -66,7 +66,7 @@ namespace TetrahedralParticlesInConfinement {
             if (j<nmolecules)
                 _NVT.run();
             else
-                attemptVolumeMove();
+                attemptVolumeMoveOptimized();// attemptVolumeMove();
             
             /*
              if (_steps > 0 && _steps % _update_volume_move_frequency_per_cycle == 0) {
@@ -87,7 +87,8 @@ namespace TetrahedralParticlesInConfinement {
 //				      				     _NVT._molecule_list.full_colloid_list[561]->_center_of_mass,
 //				     				       _NVT._box) << std::endl;
         old_list = _NVT._molecule_list;
-	old_box = _NVT._box;      
+        old_list.buildFullColloidListPointer();
+	    old_box = _NVT._box;
  
         if (old_e > 10){
             std::cerr << "Old energy too high in configuration\n";
@@ -119,8 +120,9 @@ namespace TetrahedralParticlesInConfinement {
         
         if (_NVT._pair_info.overlap){
 //            _NVT.setDensity(old_density);
-            _NVT._molecule_list = old_list;
-	    _NVT._box = old_box; 
+            _NVT._molecule_list = old_list; //fine because reference can only refer to one thing
+            _NVT._molecule_list.buildFullColloidListPointer();
+	        _NVT._box = old_box;
             _volume_info.rejected_moves++;
 //	    std::cerr << "rejected" << std::endl;
             return 0;
@@ -129,7 +131,8 @@ namespace TetrahedralParticlesInConfinement {
         if (_rng.randDouble() > exp(-arg/_NVT.getTemperature())) {
             //_NVT.setDensity(old_density);
             _NVT._molecule_list = old_list;
-	    _NVT._box = old_box;
+            _NVT._molecule_list.buildFullColloidListPointer();
+	        _NVT._box = old_box;
             _volume_info.rejected_moves++;
 //	    std::cerr << "rejected\t" << arg << "\t" << new_e << "\t" << old_e << "\t" << new_density << "\t" << old_density << "\t" << _NVT.getDensity() <<  std::endl;
 
@@ -139,6 +142,67 @@ namespace TetrahedralParticlesInConfinement {
             _NVT._E += (new_e - old_e);
             _volume_info.accepted_moves++;
 //	    std::cerr << "accepted\t" << arg << "\t" << new_e << "\t" << old_e << std::endl;
+            return 1;
+            
+        }
+    }
+    
+    
+    
+    int SimulationNPTEnsemble::attemptVolumeMoveOptimized(){
+        
+        double old_e = _NVT.computeEnergy();
+        double old_v = _NVT.getVolume();
+        
+        old_list = _NVT._molecule_list;
+        old_list.buildFullColloidListPointer();
+        old_box = _NVT._box;
+        
+        if (old_e > 10){
+            std::cerr << "Old energy too high in configuration\n";
+            std::cout << _NVT;
+            std::cout << old_e << std::endl;
+            std::cout << _NVT.computeEnergy();
+            _NVT.buildNeighborList();
+            std::cout << _NVT.computeEnergy();
+            exit(2);
+        }
+        
+        double log_new_v = log(old_v) + _volume_info.delta_move*_rng.randNormal();
+        double new_v = exp(log_new_v);
+        
+        //double volume_ratio = new_v/old_v;
+        
+        double s = pow(new_v/old_v,1./3.);
+        
+        
+        //rescale box
+        rescale(old_list, old_box, s);
+        
+        double new_e = _NVT.computeEnergy(old_list,old_box);
+        double Npart = _NVT.getMoleculeList().molecule_list.size();
+        
+        double arg = (new_e - old_e) + _pressure*(new_v - old_v)
+        - ((double) (Npart+ 1))*_NVT.getTemperature()*log(new_v/old_v);
+        
+        _volume_info.total_moves++;
+        
+        if (_NVT._pair_info.overlap){
+            _volume_info.rejected_moves++;
+            return 0;
+        }
+        
+        if (_rng.randDouble() > exp(-arg/_NVT.getTemperature())) {
+            _volume_info.rejected_moves++;
+            return 0;
+        }
+        else{
+            _NVT._E += (new_e - old_e);
+            _NVT._molecule_list = old_list;
+            _NVT._molecule_list.buildFullColloidListPointer();
+            _NVT._box = old_box;
+            _NVT._coords_since_last_neighbor_build = _NVT._molecule_list.getFullColloidListCoord();
+            _volume_info.accepted_moves++;
             return 1;
             
         }

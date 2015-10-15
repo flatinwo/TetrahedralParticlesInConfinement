@@ -12,12 +12,16 @@
 #include <stdio.h>
 #include "struct_def.h"
 #include "tetramer_patchy_colloid.h"
+#include <algorithm>
 
 namespace TetrahedralParticlesInConfinement {
     class MoleculeList{
     public:
         MoleculeList();
         ~MoleculeList(); //why does destructor code stop working
+        
+        //MoleculeList(const MoleculeList& other);    //copy constructor
+        //MoleculeList operator=(MoleculeList rhs);   //assignment operator
         
         int nparticle_per_molecule;
         
