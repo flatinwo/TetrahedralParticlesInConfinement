@@ -341,7 +341,7 @@ namespace TetrahedralParticlesInConfinement {
     
     void move_info::compute_move_probability(){
         //assert(total_moves>0);
-        if (total_moves == 0) move_probability = 0.35;
+        if (total_moves == 0) move_probability = 1.00;
         else{
         	move_probability = (double) accepted_moves / (double) total_moves;
 		if (move_probability < 0.0){
