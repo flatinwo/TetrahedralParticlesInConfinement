@@ -295,7 +295,7 @@ namespace TetrahedralParticlesInConfinement{
         if (_flag == TRANSLATE) {
             int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
             old_e = computeMoleculeEnergy(molecule_id);
-            if (old_e > 749 ){// && !_equilibrate){
+            if (old_e > 749 && !_equilibrate){
                 std::cout << computeEnergy() << std::endl;
                 std::cout << *this;
                 buildNeighborList();
@@ -310,7 +310,7 @@ namespace TetrahedralParticlesInConfinement{
             
             if (!_core_flag) {
                 old_e = computeEnergy(i);
-                if (old_e > 749 ){// && !_equilibrate){
+                if (old_e > 749  && !_equilibrate){
                     std::cout << computeEnergy() << std::endl;
                     std::cout << *this;
                     buildNeighborList();
@@ -343,7 +343,7 @@ namespace TetrahedralParticlesInConfinement{
         else if (_flag == ROTATEMOLECULE){
             int molecule_id = _molecule_list.full_colloid_list[i]->molecule_id;
             old_e = computeMoleculeEnergy(molecule_id);
-            if (old_e > 749 ){// && !_equilibrate){
+            if (old_e > 749  && !_equilibrate){
                 std::cout << computeEnergy() << std::endl;
                 std::cout << *this;
                 buildNeighborList();
