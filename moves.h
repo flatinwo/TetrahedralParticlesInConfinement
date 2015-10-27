@@ -32,9 +32,9 @@ namespace TetrahedralParticlesInConfinement {
         double delta_move; // step size of move
         double delta_move_max;
         double move_probability;
-        int accepted_moves;
-        int total_moves;
-        int rejected_moves;
+        unsigned long long int accepted_moves;
+        unsigned long long int total_moves;
+        unsigned long long int rejected_moves;
         
         void compute_move_probability();
         void update_delta_move();//
