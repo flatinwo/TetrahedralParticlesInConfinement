@@ -61,8 +61,11 @@ namespace TetrahedralParticlesInConfinement{
         double computeMoleculeEnergy(int);
         double computeEnergy(MoleculeList& system, Box& box);
         
+        enum PressureMode {COMPRESSION=0, EXPANSION=1, COMPRESSIONANDEXPANSION=2};
+
+        
         void   computeVolume(); //make return
-        double computePressure();
+        double computePressure(double dv=0.01, PressureMode mode=COMPRESSION);
         
         
     protected:

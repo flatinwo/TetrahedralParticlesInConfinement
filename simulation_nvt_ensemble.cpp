@@ -227,7 +227,7 @@ namespace TetrahedralParticlesInConfinement{
         _pair_info.overlap = false;
         
         //check if neighbor list needs to be rebuilt
-        if (checkNeighborList(system,box)) {
+        /*if (checkNeighborList(system,box)) {
             ::TetrahedralParticlesInConfinement::build_neighbor_list(system.getFullColloidListCoord(), box, _neighbor_list);
         }
         
@@ -236,11 +236,58 @@ namespace TetrahedralParticlesInConfinement{
         double energy = compute_pair_energy_full(system,
                                                  box, _pair_info,
                                                  _neighbor_list.first,
-                                                 _neighbor_list.second);
+                                                 _neighbor_list.second);*/
+        double energy = compute_pair_energy(system, box,_pair_info);
+        
+        
         if  (confinement == NULL)
             return energy;
         else
             return (energy + compute_pair_energy_plates(system, box, *confinement, _pair_info));
+        
+        
+    }
+    
+    //compute Pressure
+    //references: Miguel and Jackson, Mol. Phys., vol. 104,3717-3734, 2006
+    //            Miguel and Jackson, J. Chem. Phys., 125, 164109, 2006
+    double SimulationNVTEnsemble::computePressure(double dv, PressureMode mode){
+        
+        double old_e = computeEnergy();
+        //double old_v = getVolume();
+        
+        MoleculeList old_list = _molecule_list;
+        old_list.buildFullColloidListPointer();
+        Box old_box = _box;
+        
+        double N = (double)_molecule_list.molecule_list.size();
+        
+        //assert(dv > 0.);
+        
+        double scale_volume;
+        
+        if (mode == COMPRESSION) {
+            scale_volume = 1.0 - dv;
+            double s = pow(scale_volume,1./3.);
+            rescale(old_list, old_box, s);
+            double new_e = computeEnergy(old_list,old_box);
+            
+            if (_pair_info.overlap) {
+                return 0.;
+            }
+            else
+                return pow(scale_volume,N)*exp(-1.0*_beta*(new_e-old_e));
+                
+        }
+        else if (mode == EXPANSION){
+            scale_volume = 1.0 + dv;
+            double s = pow(scale_volume,1./3.);
+            rescale(old_list, old_box, s);
+            double new_e = computeEnergy(old_list,old_box);
+            return pow(scale_volume,N)*exp(-1.0*_beta*(new_e-old_e));
+        }
+        else
+            return 0.;
         
         
     }
