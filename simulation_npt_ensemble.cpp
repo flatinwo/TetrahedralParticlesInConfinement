@@ -66,7 +66,7 @@ namespace TetrahedralParticlesInConfinement {
             if (j<nmolecules)
                 _NVT.run();
             else
-                attemptVolumeMove();//Optimized();// attemptVolumeMove();
+                attemptVolumeMoveOptimized();// attemptVolumeMove();
             
             /*
              if (_steps > 0 && _steps % _update_volume_move_frequency_per_cycle == 0) {
