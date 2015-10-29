@@ -135,7 +135,9 @@ namespace TetrahedralParticlesInConfinement{
         return _move_info_map;
     }
     
-    
+   double SimulationNVTEnsemble::getCosAngleMax(){
+	return _cos_angle_max;
+   } 
     
 #pragma mark OTHERS
     void SimulationNVTEnsemble::run(int nstep){

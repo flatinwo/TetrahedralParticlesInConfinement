@@ -44,6 +44,7 @@ namespace TetrahedralParticlesInConfinement{
         double getTemperature();
         double getDensity();
         double getVolume();
+	double getCosAngleMax();
         coord_list_t& getFullColloidListCoord();
         std::map<int,move_info>& getMoveInfoMap();
         
