@@ -132,8 +132,8 @@ namespace TetrahedralParticlesInConfinement {
     };
     
     
-    struct Umbrella_Spring{
-        Umbrella_Spring():
+    struct UmbrellaSpring{
+        UmbrellaSpring():
         order_parameter(0.5),
         spring_constant(10.),
         umbrella_type("density"){

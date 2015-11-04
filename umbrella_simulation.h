@@ -16,9 +16,11 @@
 //#include "simulation_gibbs_ensemble.h"
 
 namespace TetrahedralParticlesInConfinement {
+    class SimulationGibbsEnsemble;
+    
     class UmbrellaSimulation{
     public:
-        UmbrellaSimulation(SimulationNPTEnsemble&, RandomNumberGenerator&, Umbrella_Spring*);
+        UmbrellaSimulation(SimulationNPTEnsemble&, RandomNumberGenerator&, UmbrellaSpring*);
         
         void setUmbrellaType(int);
         void setUmbrellaRestraintValue(double);
@@ -37,28 +39,34 @@ namespace TetrahedralParticlesInConfinement {
     protected:
         int _nstepsMC;
         double _E, _restrain_value;
+        double _beta;
         bool _equilibrate;
         int _umbrella_type;
         
         int _running_count;
         double _running_avg;
         
+        move_info _umbrella_info;
+        
         
         SimulationNVTEnsemble* _NVT; //use null to switch the flow
         SimulationNPTEnsemble* _NPT; //use null to switch the flow
- //       SimulationGibbsEnsemble* _Gibbs; //use null to switch the flow
+        SimulationGibbsEnsemble* _Gibbs; //use null to switch the flow
         RandomNumberGenerator* _rng;
-        Umbrella_Spring* _umbrella;
+        UmbrellaSpring* _umbrella;
         
         std::ofstream _ofile;			//< File to write umbrella data to
         
         struct Config_t{
             double _old_density;
             coord_list_t _old_coord_list;
+            MoleculeList _old_list;
+            Box _old_box;
         } _old_configs;
         
         void saveConfig(double); //could use auto or typeid here
         void saveConfig(coord_list_t);
+        void saveConfig();
         
         int _steps;
         

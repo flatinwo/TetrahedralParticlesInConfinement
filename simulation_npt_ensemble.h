@@ -17,18 +17,25 @@ namespace TetrahedralParticlesInConfinement{
     class SimulationNPTEnsemble{
         
         friend class AnalyzeSimulationStepSize;
+        friend class UmbrellaSimulation;
         
     public:
         SimulationNPTEnsemble(SimulationNVTEnsemble& NVT, RandomNumberGenerator& rng, double pressure = 1.0);
+        SimulationNPTEnsemble(SimulationNVTEnsemble& NVT, RandomNumberGenerator& rng, double pressure, UmbrellaSpring&);
         ~SimulationNPTEnsemble();
         
         int vol_move_per_cycle; //this is chosen -1
         
         void setPressure(double);
         void setDensity(double);
+
         
         double getPressure();
         double getDensity();
+        
+        void addUmbrellaSpring(UmbrellaSpring&);
+        
+        
         move_info& getVolumeInfo();
         SimulationNVTEnsemble& getNVTEnsemble();
         
@@ -44,6 +51,7 @@ namespace TetrahedralParticlesInConfinement{
         move_info _volume_info;
         MoleculeList old_list;
         Box	old_box;
+        UmbrellaSpring* _umbrella;
 
         int attemptVolumeMove();
         int attemptVolumeMoveOptimized();

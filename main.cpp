@@ -12,12 +12,16 @@
 
 //to do:
 //write move type and analyze frame to make sure expected behavior is occurring
+//write output in binary to speed up code
+//set up calculations so that constructor can be called and set arbitrarily
+//make calculations on new config.. saves in efficiency
+//why does number of accepted moves become negative.. check memory allocation
 
 using namespace TetrahedralParticlesInConfinement;
 
 int main(int argc, const char * argv[]) {
    
-    double density = 0.12;
+    double density = 0.1;
     double temperature = 0.072191;
     double pressure = 0.0054;
     
@@ -26,11 +30,14 @@ int main(int argc, const char * argv[]) {
         pressure = atof(argv[2]);
     }
     
+    
+    
     double bond_length = 0.5;
     MoleculeList System;
     System.setMoleculeListBondLength(bond_length);
-    RandomNumberGenerator48 rng, rng2(0,1,3);
+    RandomNumberGenerator48 rng, rng2(0,1,3), rng3(0,4,3);
     Box box;
+    int nmol = 25;
     
     std::cout << "reduced density\t" << density << std::endl;
     std::cout << "reduced temperature\t" << temperature << std::endl;
@@ -40,7 +47,7 @@ int main(int argc, const char * argv[]) {
    
     /* Build system with lattice*/
     LatticeFCC lattice;
-    lattice.setNumberOfLatticePoints(150);
+    lattice.setNumberOfLatticePoints(nmol);
     lattice.setDensity(1.1*density);
     lattice.generateLattice();
     System.buildMoleculeListAndBox(lattice,box);
@@ -54,18 +61,27 @@ int main(int argc, const char * argv[]) {
     
     //update neighbor list info
     neighbor_list_info n_info;
-    n_info.cut_off_sqd = 12.;
+    n_info.cut_off_sqd = 6.0;
     simulation.setNeighborInfo(n_info);
     
     
+    UmbrellaSpring* density_bias = new UmbrellaSpring();
+    density_bias->order_parameter = 0.097;
+    density_bias->spring_constant = 15000.;
+    
     SimulationNPTEnsemble npt(simulation, rng2, pressure);
+    
+    //UmbrellaSimulation umbrella(npt, rng3, density_bias);
     
     std::cout << box << std::endl;
     
     for (int i=0;i<2;i++){
         
-        if (i==0) simulation.setBeta(1./0.1);
-        else simulation.setBeta(1./temperature);
+        if (i==0) simulation.setBeta(1./0.15);
+        else {
+            simulation.setBeta(1./temperature);
+            npt.addUmbrellaSpring(*density_bias);
+        }
         
         double N = (double) System.molecule_list.size();
         
@@ -107,10 +123,10 @@ int main(int argc, const char * argv[]) {
         
         simulation.setEquilibrate(false);
         simulation.openFile();
-        for (int i=0; i<50000; i++){
-            simulation.writeConfig();
-            npt.run(10);
-            if (i%100==0) std::cout << simulation.getDensity() << std::endl;
+        for (int i=0; i<500000; i++){
+           // if (i%(10*nmol)==0) simulation.writeConfig();
+            npt.run(100);
+            if (i%(2*nmol)==0) std::cout << simulation.getDensity() << std::endl;
         }
         simulation.writeConfig();
         simulation.closeFile();
@@ -131,15 +147,9 @@ int main(int argc, const char * argv[]) {
         
     }
     
-    std::ofstream file1;
-    file1.open("orientation_list.txt");
-    for (unsigned int i=0; i<System.molecule_list.size(); i++) {
-        for (unsigned int j=0; j<System.molecule_list[i].orientation_list.size(); j++) {
-            file1 << i << "\t" << j << "\t" <<
-            System.molecule_list[i].orientation_list[j] << std::endl;
-        }
-    }
-    file1.close();
+    //umbrella.run(50000);
+    
+    delete density_bias;
     
     return 0;
    

@@ -19,6 +19,17 @@ namespace TetrahedralParticlesInConfinement {
         
         vol_move_per_cycle = 2;
         _steps = 0;
+        _umbrella = NULL;
+        
+    }
+    
+    //note there is room for understanding delegating constructors
+    SimulationNPTEnsemble::SimulationNPTEnsemble(SimulationNVTEnsemble& NVT, RandomNumberGenerator& rng, double pressure, UmbrellaSpring& umbrella):
+     _NVT(NVT), _rng(rng), _pressure(pressure), _update_volume_move_frequency_per_cycle(10), _umbrella(&umbrella){
+         _volume_info = move_info();
+         _volume_info.delta_move = 0.005;
+         vol_move_per_cycle = 2;
+         _steps = 0;
         
     }
     
@@ -34,6 +45,10 @@ namespace TetrahedralParticlesInConfinement {
     
     void SimulationNPTEnsemble::setPressure(double pressure){
         _pressure = pressure;
+    }
+    
+    void SimulationNPTEnsemble::addUmbrellaSpring(UmbrellaSpring& umbrella){
+        _umbrella = &umbrella;
     }
     
 #pragma mark GETS
@@ -67,12 +82,6 @@ namespace TetrahedralParticlesInConfinement {
                 _NVT.run();
             else
                 attemptVolumeMoveOptimized();// attemptVolumeMove();
-            
-            /*
-             if (_steps > 0 && _steps % _update_volume_move_frequency_per_cycle == 0) {
-             _volume_info.update_delta_move();
-             }
-             */
             _steps++;
         }
         
@@ -83,9 +92,7 @@ namespace TetrahedralParticlesInConfinement {
         double old_e = _NVT.computeEnergy();
         double old_v = _NVT.getVolume();
 
-//	std::cerr << "pressure\t\t" << distancesq(_NVT._molecule_list.full_colloid_list[236]->_center_of_mass,
-//				      				     _NVT._molecule_list.full_colloid_list[561]->_center_of_mass,
-//				     				       _NVT._box) << std::endl;
+
         old_list = _NVT._molecule_list;
         old_list.buildFullColloidListPointer();
 	    old_box = _NVT._box;
@@ -119,29 +126,23 @@ namespace TetrahedralParticlesInConfinement {
         _volume_info.total_moves++;
         
         if (_NVT._pair_info.overlap){
-//            _NVT.setDensity(old_density);
             _NVT._molecule_list = old_list; //fine because reference can only refer to one thing
             _NVT._molecule_list.buildFullColloidListPointer();
 	        _NVT._box = old_box;
             _volume_info.rejected_moves++;
-//	    std::cerr << "rejected" << std::endl;
             return 0;
         }
         
         if (_rng.randDouble() > exp(-arg/_NVT.getTemperature())) {
-            //_NVT.setDensity(old_density);
             _NVT._molecule_list = old_list;
             _NVT._molecule_list.buildFullColloidListPointer();
 	        _NVT._box = old_box;
             _volume_info.rejected_moves++;
-//	    std::cerr << "rejected\t" << arg << "\t" << new_e << "\t" << old_e << "\t" << new_density << "\t" << old_density << "\t" << _NVT.getDensity() <<  std::endl;
-
             return 0;
         }
         else{
             _NVT._E += (new_e - old_e);
             _volume_info.accepted_moves++;
-//	    std::cerr << "accepted\t" << arg << "\t" << new_e << "\t" << old_e << std::endl;
             return 1;
             
         }
@@ -171,10 +172,7 @@ namespace TetrahedralParticlesInConfinement {
         double log_new_v = log(old_v) + _volume_info.delta_move*_rng.randNormal();
         double new_v = exp(log_new_v);
         
-        //double volume_ratio = new_v/old_v;
-        
         double s = pow(new_v/old_v,1./3.);
-        
         
         //rescale box
         rescale(old_list, old_box, s);
@@ -190,6 +188,15 @@ namespace TetrahedralParticlesInConfinement {
         if (_NVT._pair_info.overlap){
             _volume_info.rejected_moves++;
             return 0;
+        }
+        
+        //Umbrella potential
+        if (_umbrella != NULL) {
+            //double volume_ratio = new_v/old_v;
+            double old_density = _NVT.getDensity();
+            double new_density = old_density*old_v/new_v;
+            
+            arg += (_umbrella->getUmbrellaEnergy(new_density) - _umbrella->getUmbrellaEnergy(old_density)); //it may be more optimal to do this in volume
         }
         
         if (_rng.randDouble() > exp(-arg/_NVT.getTemperature())) {

@@ -9,12 +9,13 @@
 #include "umbrella_simulation.h"
 
 namespace TetrahedralParticlesInConfinement {
-    UmbrellaSimulation::UmbrellaSimulation(SimulationNPTEnsemble& NPT, RandomNumberGenerator& rng, Umbrella_Spring* umbrella):
+    UmbrellaSimulation::UmbrellaSimulation(SimulationNPTEnsemble& NPT, RandomNumberGenerator& rng, UmbrellaSpring* umbrella):
     _NPT(&NPT), _rng(&rng), _umbrella(umbrella){
         _nstepsMC = 10;
         _umbrella_type = DENSITY;
-        _NVT = NULL;
+        _NVT = &(_NPT->_NVT);
         _E = 1000000.;
+        _beta = 1./(_NPT->_NVT.getTemperature());
         //_Gibbs = NULL;
         
     }
@@ -70,15 +71,20 @@ namespace TetrahedralParticlesInConfinement {
             if (E_new <= _E) {
                 _restrain_value = restrain_param;
                 _E = E_new;
-                saveConfig(_NPT->getDensity());
+                saveConfig();
+                _umbrella_info.accepted_moves++;
             }
-            else if (exp(-(E_new - _E)) < _rng->randDouble()){
-                _NPT->setDensity(_old_configs._old_density);
+            else if (exp(-1.*_beta*(E_new - _E)) < _rng->randDouble()){
+                _NVT->_box = _old_configs._old_box;
+                _NVT->_molecule_list = _old_configs._old_list;
+                _NVT->_molecule_list.buildFullColloidListPointer();
+                _umbrella_info.rejected_moves++;
             }
             else{
                 _restrain_value = restrain_param;
                 _E = E_new;
-                saveConfig(_NPT->getDensity());
+                saveConfig();
+                _umbrella_info.accepted_moves++;
             }
             
             if (i%100) std::cout << _NPT->getDensity() << std::endl;
@@ -92,7 +98,7 @@ namespace TetrahedralParticlesInConfinement {
         
     }
     
-    
+#pragma mark SAVES
     void UmbrellaSimulation::saveConfig(double value){
         _old_configs._old_density = value;
         
@@ -102,6 +108,11 @@ namespace TetrahedralParticlesInConfinement {
         _old_configs._old_coord_list = list;
     }
     
+    void UmbrellaSimulation::saveConfig(){
+        _old_configs._old_list = _NVT->getMoleculeList();
+        _old_configs._old_list.buildFullColloidListPointer();
+        _old_configs._old_box = _NVT->getBox();
+    }
     
     
     void UmbrellaSimulation::openFile(){

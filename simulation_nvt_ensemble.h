@@ -27,6 +27,7 @@ namespace TetrahedralParticlesInConfinement{
         friend class AnalyzeSimulationStepSize;
         friend class TestSimulationNVTEnsemble;
         friend class SimulationNPTEnsemble;
+        friend class UmbrellaSimulation;
         
     public:
         SimulationNVTEnsemble(MoleculeList&, Box&, RandomNumberGenerator&);
@@ -44,7 +45,7 @@ namespace TetrahedralParticlesInConfinement{
         double getTemperature();
         double getDensity();
         double getVolume();
-	double getCosAngleMax();
+        double getCosAngleMax();
         coord_list_t& getFullColloidListCoord();
         std::map<int,move_info>& getMoveInfoMap();
         
