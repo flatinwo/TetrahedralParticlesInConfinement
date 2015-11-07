@@ -177,9 +177,9 @@ namespace TetrahedralParticlesInConfinement{
             int p = _rng.randInt()%_n;
             attemptMove(p);
         }
-        _steps++;
         if ((!_equilibrate) && (_steps%(nmolecules*100)==0)) _ofile_energy << _steps/nmolecules << "\t" << _E / (double) nmolecules <<  "\t" << getDensity() << std::endl;
-        
+        _steps++;
+
     }
     
     void SimulationNVTEnsemble::computeVolume(){
