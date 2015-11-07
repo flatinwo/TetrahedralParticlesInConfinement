@@ -178,7 +178,7 @@ namespace TetrahedralParticlesInConfinement{
             attemptMove(p);
         }
         _steps++;
-        if ((!_equilibrate) && (_steps%100==0)) _ofile_energy << _steps << "\t" << _E / (double) nmolecules <<  "\t" << getDensity() << std::endl;
+        if ((!_equilibrate) && (_steps%(nmolecules*100)==0)) _ofile_energy << _steps/nmolecules << "\t" << _E / (double) nmolecules <<  "\t" << getDensity() << std::endl;
         
     }
     
