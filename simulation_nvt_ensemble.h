@@ -15,6 +15,7 @@
 #include <iomanip>
 #include "moves.h"
 #include <string>
+#include <cassert>
 
 //question save config with static keyword
 //using function pointers or templates, i need to think.. we can compute
@@ -33,6 +34,8 @@ namespace TetrahedralParticlesInConfinement{
         SimulationNVTEnsemble(MoleculeList&, Box&, RandomNumberGenerator&);
         ~SimulationNVTEnsemble();
         
+        enum PressureMode {COMPRESSION=0, EXPANSION=1, COMPRESSIONANDEXPANSION=2};
+        
         void setBeta(double);
         void setDensity(double);
         void setUpdateMoveFrequencyPerCycle(int);
@@ -40,15 +43,20 @@ namespace TetrahedralParticlesInConfinement{
         void setDeltaMoveRotate(double);
         void setCosAngleMax(double);
         void setUpdateNeighborFrequencyPerCycle(int);
+        void setPressureCalculation(bool);
+        void setPressureCalculationScaleFactor(double);
+        void setPressureCalculationMode(PressureMode);
         void UpdateNeighborFrequencyPerCycle();
         
         double getTemperature();
         double getDensity();
         double getVolume();
         double getCosAngleMax();
+        double getPressure();
         coord_list_t& getFullColloidListCoord();
         std::map<int,move_info>& getMoveInfoMap();
         
+        void resetPressureTally();
         
         void run(int);
         void run();
@@ -57,22 +65,24 @@ namespace TetrahedralParticlesInConfinement{
         void openFile();
         void closeFile();
         void writeConfig();
+        void openPressureFile();
+        void closePressureFile();
         
         double computeEnergy(int);
         double computeEnergy();
         double computeMoleculeEnergy(int);
         double computeEnergy(MoleculeList& system, Box& box);
         
-        enum PressureMode {COMPRESSION=0, EXPANSION=1, COMPRESSIONANDEXPANSION=2};
 
         
         void   computeVolume(); //make return
         double computePressure(double dv=0.01, PressureMode mode=COMPRESSION);
+        void   tallyPressure();
         
         
     protected:
         int _n;
-        double _beta;
+        double _beta,_temperature;
         double _density;
         double _volume;
         int _nsubmoves;
@@ -80,6 +90,7 @@ namespace TetrahedralParticlesInConfinement{
         double _E, _delE;
         bool _core_flag;
         double _cos_angle_max;
+        double computePairEnergy(int);
         
         int attemptMove(int);
         int attemptSubMove(int);
@@ -102,16 +113,46 @@ namespace TetrahedralParticlesInConfinement{
         bool checkNeighborList(int);
         bool checkNeighborList(MoleculeList&, Box&);
         void computeMaxDisplacement();
+        bool pressureCalculation;
         
         
         std::map<int,move_info> _move_info_map;
         
         std::pair<int,int> old_flag;
         
+        struct PressureLog{
+            PressureLog():
+            count(0),pressure_sum(0),scale_factor(0.01),
+            _pressure_config(COMPRESSION),inverseVolume(1.),
+            frequency(100)
+            {
+                _inverse_scale_factor = inverseVolume/(scale_factor);
+            };
+            
+            unsigned long count;
+            unsigned int frequency;
+            double pressure_sum;
+            double scale_factor, _inverse_scale_factor;
+            PressureMode _pressure_config;
+            double inverseVolume;
+            
+            
+            void reset(){
+                count = pressure_sum = 0;
+            }
+            
+            void refresh(){
+                assert(scale_factor > 0.);
+                _inverse_scale_factor = inverseVolume/scale_factor;
+            }
+            
+        } _pressure_log;
+        
         enum {TRANSLATE = 0, ROTATE = 1, ROTATEMOLECULE=2};
         enum {REJECT = 0, ACCEPT = 1};
         
-        double computePairEnergy(int);
+        std::ofstream _ofile_pressure;
+        
     };
 }
 

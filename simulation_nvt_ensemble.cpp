@@ -29,6 +29,7 @@ namespace TetrahedralParticlesInConfinement{
         _n = (int) _molecule_list.getFullColloidListCoord().size();
         
         assert(_n>0);
+        _temperature = 1./_beta;
         computeVolume();
         
         _density = (double)_molecule_list.molecule_list.size()/_volume;
@@ -51,6 +52,9 @@ namespace TetrahedralParticlesInConfinement{
         _E = _delE = 0.;
         _core_flag = false;
         
+        pressureCalculation = false;
+        
+        
         _delta_skin = 0.5*(sqrt(_neighbor_list.second.cut_off_sqd) - sqrt(_pair_info.cut_off_criteria));
         assert(_delta_skin > 0.1);
     }
@@ -64,6 +68,7 @@ namespace TetrahedralParticlesInConfinement{
 #pragma mark SETS
     void SimulationNVTEnsemble::setBeta(double beta){
         _beta = beta;
+        _temperature = 1./_beta;
         
     }
     
@@ -75,12 +80,13 @@ namespace TetrahedralParticlesInConfinement{
         _density = density;
         double s = pow(old_density/_density,1./3.);
         
-        //rescale(_molecule_list, s);
-        //rescale(_box, s);
-        
         rescale(_molecule_list, _box, s);
         
         computeVolume();
+        if (pressureCalculation) {
+            _pressure_log.inverseVolume = 1./_volume;
+            _pressure_log.refresh();
+        }
         buildNeighborList();
     }
     
@@ -111,9 +117,35 @@ namespace TetrahedralParticlesInConfinement{
         _cos_angle_max = cosangle;
     }
     
+    void SimulationNVTEnsemble::setPressureCalculation(bool flag){
+        pressureCalculation = flag;
+        if (pressureCalculation) {
+            _pressure_log.reset();
+            _pressure_log.inverseVolume = 1./getVolume();
+            _pressure_log.refresh();
+        }
+    }
+    
+    void SimulationNVTEnsemble::setPressureCalculationMode(PressureMode mode){
+        _pressure_log._pressure_config = mode;
+    }
+    
+    void SimulationNVTEnsemble::setPressureCalculationScaleFactor(double dv){
+        assert(dv > 0. && dv < 1.);
+        _pressure_log.scale_factor = dv;
+        _pressure_log.inverseVolume = 1./getVolume();
+        _pressure_log.refresh();
+    }
+    
+    
+#pragma mark RESETS
+    void SimulationNVTEnsemble::resetPressureTally(){
+        _pressure_log.reset();
+    }
+    
 #pragma mark GETS
     double SimulationNVTEnsemble::getTemperature(){
-        return 1./(_beta);
+        return _temperature;
     }
     
     double SimulationNVTEnsemble::getDensity(){
@@ -135,9 +167,14 @@ namespace TetrahedralParticlesInConfinement{
         return _move_info_map;
     }
     
-   double SimulationNVTEnsemble::getCosAngleMax(){
-	return _cos_angle_max;
-   } 
+    double SimulationNVTEnsemble::getCosAngleMax(){
+        return _cos_angle_max;
+    }
+    
+    double SimulationNVTEnsemble::getPressure(){
+        assert(_pressure_log.count > 0);
+        return _pressure_log._inverse_scale_factor*_temperature*(log(_pressure_log.pressure_sum /(double) _pressure_log.count));
+    }
     
 #pragma mark OTHERS
     void SimulationNVTEnsemble::run(int nstep){
@@ -150,7 +187,6 @@ namespace TetrahedralParticlesInConfinement{
         _nmovespercycle = _nsubmoves*nmolecules;
         
         _E = computeEnergy();
-        //std::cout << "Initial Total Energy\t" << _E << std::endl;
         for (int i=0; i<nstep; i++) {
             for (int j=0; j< _nmovespercycle; j++) {  //note 1 cycle = _nsubmoves*nmolecules
                 int p = _rng.randInt()%_n;
@@ -161,9 +197,16 @@ namespace TetrahedralParticlesInConfinement{
                 //buildNeighborList();
             }
             _steps++;
-            if ((!_equilibrate) && (_steps%100==0)) _ofile_energy << _steps << "\t" << //computeEnergy()/(double) nmolecules <<
+            if ((!_equilibrate) && (_steps%100==0)) _ofile_energy << _steps << "\t" <<
                 "\t" << _E / (double) nmolecules <<  "\t" << getDensity() << std::endl;
-            //std::cout << "Total Energy\t" << _E << std::endl;
+            
+            if (pressureCalculation && _steps % _pressure_log.frequency == 0) {
+                tallyPressure();
+                if (_pressure_log.count % _pressure_log.frequency == 0) {
+                    _ofile_pressure << _steps << "\t" << getPressure() << std::endl;
+                }
+            }
+            
         }
         
     }
@@ -228,17 +271,6 @@ namespace TetrahedralParticlesInConfinement{
     double SimulationNVTEnsemble::computeEnergy(MoleculeList& system, Box& box){
         _pair_info.overlap = false;
         
-        //check if neighbor list needs to be rebuilt
-        /*if (checkNeighborList(system,box)) {
-            ::TetrahedralParticlesInConfinement::build_neighbor_list(system.getFullColloidListCoord(), box, _neighbor_list);
-        }
-        
-        
-        assert(system.full_colloid_list.size() == _neighbor_list.first.size());
-        double energy = compute_pair_energy_full(system,
-                                                 box, _pair_info,
-                                                 _neighbor_list.first,
-                                                 _neighbor_list.second);*/
         double energy = compute_pair_energy(system, box,_pair_info);
         
         
@@ -293,6 +325,12 @@ namespace TetrahedralParticlesInConfinement{
         
         
     }
+    
+    void SimulationNVTEnsemble::tallyPressure(){
+        _pressure_log.count++;
+        _pressure_log.pressure_sum += computePressure(_pressure_log.scale_factor, _pressure_log._pressure_config);
+    }
+    
     
     double SimulationNVTEnsemble::computeMoleculeEnergy(int index){
         _pair_info.overlap = false;
@@ -677,10 +715,30 @@ namespace TetrahedralParticlesInConfinement{
         }
     }
     
+    void SimulationNVTEnsemble::openPressureFile(){
+        if (!pressureCalculation) {
+            std::cerr << "ERROR: cannot open pressure file if pressure calculation mode is off\n";
+            exit(0);
+        }
+        std::ostringstream os;
+        os << std::setprecision(4);
+        os << "pressure_log_T="<<getTemperature()<<"_density="<<getDensity()<<".txt";
+        _ofile_pressure.open(os.str().c_str(), std::ios::app);
+        
+        if (_ofile_pressure.fail()) {
+            std::cerr << "ERROR: failed to open pressure log file\n";
+            exit(0);
+        }
+    }
+    
     void SimulationNVTEnsemble::closeFile(){
         _ofile.close();
         _ofile_energy.close();
         
+    }
+    
+    void SimulationNVTEnsemble::closePressureFile(){
+        _ofile_pressure.close();
     }
     
     void SimulationNVTEnsemble::writeConfig(){
