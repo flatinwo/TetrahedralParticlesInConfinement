@@ -126,7 +126,7 @@ namespace TetrahedralParticlesInConfinement{
             _pressure_config(COMPRESSION),inverseVolume(1.),
             frequency(100)
             {
-                _inverse_scale_factor = inverseVolume/(scale_factor);
+                _inverse_scale_factor = -1.0*inverseVolume/(scale_factor);
             };
             
             unsigned long count;
@@ -144,6 +144,9 @@ namespace TetrahedralParticlesInConfinement{
             void refresh(){
                 assert(scale_factor > 0.);
                 _inverse_scale_factor = inverseVolume/scale_factor;
+                
+                if (_pressure_config == COMPRESSION)
+                    _inverse_scale_factor *= -1.0;
             }
             
         } _pressure_log;

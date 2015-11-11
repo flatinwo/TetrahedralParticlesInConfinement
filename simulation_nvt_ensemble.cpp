@@ -301,8 +301,8 @@ namespace TetrahedralParticlesInConfinement{
         double scale_volume;
         
         if (mode == COMPRESSION) {
-            scale_volume = 1.0 - dv;
-            double s = pow(scale_volume,1./3.);
+            scale_volume = 1.0 - dv;//can move out since this is usually fixed
+            double s = pow(scale_volume,1./3.); //same here
             rescale(old_list, old_box, s);
             double new_e = computeEnergy(old_list,old_box);
             
