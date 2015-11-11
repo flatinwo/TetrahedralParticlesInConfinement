@@ -20,7 +20,15 @@ namespace TetrahedralParticlesInConfinement {
     typedef std::pair<coord_t, coord_list_t> coord_pair;
     
     struct move_info{
-        
+
+        double delta_move; // step size of move
+        double delta_move_max;
+        double move_probability;
+        unsigned long long int accepted_moves;
+        unsigned long long int total_moves;
+        unsigned long long int rejected_moves;
+ 
+
         move_info():
         delta_move(0.1),
         delta_move_max(1.0),
@@ -28,14 +36,7 @@ namespace TetrahedralParticlesInConfinement {
         accepted_moves(0),
         rejected_moves(0),
         total_moves(0){}
-        
-        double delta_move; // step size of move
-        double delta_move_max;
-        double move_probability;
-        unsigned long long int accepted_moves;
-        unsigned long long int total_moves;
-        unsigned long long int rejected_moves;
-        
+               
         void compute_move_probability();
         void update_delta_move();//
         void reset();
