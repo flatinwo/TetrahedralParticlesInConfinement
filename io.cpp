@@ -28,6 +28,7 @@ namespace TetrahedralParticlesInConfinement {
         if (file.fail()) {
             std::cerr << "Error: load: can't openfile "
             << filename << ".\n";
+            arg=0x0;
             exit(1);
         }
         
@@ -219,7 +220,7 @@ namespace TetrahedralParticlesInConfinement {
             
             r.push_back(rxyz);
             if (x.size() == 5) {
-                system.addToMoleculeList(x, r, box);
+                system.addToMoleculeList(x, r);
                 x.clear();
                 r.clear();
             }
@@ -280,7 +281,7 @@ namespace TetrahedralParticlesInConfinement {
     
     //have a different version with xyz type
     void savexyz(const char* filename, coord_list_t& x, xyz_info& info){
-        unsigned long n = x.size();
+        unsigned int n = (unsigned int) x.size();
         
         std::ofstream xyzfile(filename);
         
@@ -297,12 +298,12 @@ namespace TetrahedralParticlesInConfinement {
         
         *os << n << "\n\n";
         if (info.type.size() > 0) {
-            for (int i=0; i<n; i++){
+            for (unsigned int i=0; i<n; i++){
                 *os << info.type[i] << "\t" << x[i][0] << "\t" << x[i][1] << "\t" << x[i][2] << "\n";
             }
         }
         else{
-            for (int i=0; i<n; i++){
+            for (unsigned int i=0; i<n; i++){
                 *os << "H\t" << x[i][0] << "\t" << x[i][1] << "\t" << x[i][2] << "\n";
             }
         }
@@ -349,7 +350,7 @@ namespace TetrahedralParticlesInConfinement {
         }
         return os;
     }
-    
+ /*
     std::istream& operator >> (std::istream& is, coord_list_t& x){
         return is;
     }
@@ -361,4 +362,5 @@ namespace TetrahedralParticlesInConfinement {
     std::istream& operator >> (std::istream& is, shpdesc_t& sd){
         return is;
     }
+  */
 }

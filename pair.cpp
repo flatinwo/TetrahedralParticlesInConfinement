@@ -259,7 +259,7 @@ namespace TetrahedralParticlesInConfinement {
                                       Box& box, Plates& plates, pair_info& info){
         
         double energy = 0.;
-        int n = (int) molecule_list.full_colloid_list.size();
+        unsigned int n = (unsigned int) molecule_list.full_colloid_list.size();
         
         for (unsigned int index=0; index < n; index++)
             energy += compute_pair_energy_plates(index, molecule_list, box, plates, info);
@@ -271,7 +271,7 @@ namespace TetrahedralParticlesInConfinement {
     double compute_pair_molecule_energy_plates(int index0, MoleculeList& molecule_list,
                                                Box& box, Plates& plates, pair_info& info){
         //index is molecule id
-        int n = (int) molecule_list.molecule_list[index0].colloid_list.size();
+        unsigned int n = (unsigned int) molecule_list.molecule_list[index0].colloid_list.size();
         double energy = 0.;
         
         for (unsigned int i=0; i<n; i++) {
@@ -323,12 +323,12 @@ namespace TetrahedralParticlesInConfinement {
             build_neighbor_list(x, box, neighbor_list, neighbor_info);
         }
         
-        int n = (int) neighbor_list.size();
+        unsigned int n = (unsigned int) neighbor_list.size();
         double e = 0.;
-        int dim = (int) molecule_list.molecule_list[index0].colloid_list.size();
+        unsigned int dim = (unsigned int) molecule_list.molecule_list[index0].colloid_list.size();
 
         for (unsigned int i=0; i < dim; i++){
-            int index = dim*index0 + i;
+            unsigned int index = dim*index0 + i;
             for (unsigned int j=0; j<neighbor_list[index].size(); j++) {
                 int nbr = neighbor_list[index][j];
                 e += compute_pair_energy(*(molecule_list.full_colloid_list[index]),*(molecule_list.full_colloid_list[nbr]),box, pair_info);
@@ -345,16 +345,17 @@ namespace TetrahedralParticlesInConfinement {
     }
     
     
-#pragma COMPUTE ENERGY WITHOUT NEIGHBOR LISTS
+#pragma mark COMPUTE ENERGY WITHOUT NEIGHBOR LISTS
     
     //energy between particle i and system
     double compute_pair_energy(int index, MoleculeList& molecule_list,
                                Box& box, pair_info& pair_info){
         
         double e = 0.;
+        unsigned int index0 = (unsigned int) index;
         
         for (unsigned int j=0; j<molecule_list.full_colloid_list.size(); j++) {
-            if (j!=index)
+            if (j != index0)
                 e += compute_pair_energy(*(molecule_list.full_colloid_list[index]),*(molecule_list.full_colloid_list[j]),
                                          box, pair_info);
             if (pair_info.overlap) {
@@ -374,10 +375,10 @@ namespace TetrahedralParticlesInConfinement {
         double e = 0.;
         int dim = (int) molecule_list.molecule_list[index0].colloid_list.size();
         
-        for (unsigned int i=0; i < dim; i++){
+        for (int i=0; i < dim; i++){
             int index = dim*index0 + i;
             for (unsigned int j=0; j<molecule_list.full_colloid_list.size(); j++) {
-                if (j!=index)
+                if ((int) j!= index)
                     e += compute_pair_energy(*(molecule_list.full_colloid_list[index]),*(molecule_list.full_colloid_list[j]),
                                              box, pair_info);
                 if (pair_info.overlap) {

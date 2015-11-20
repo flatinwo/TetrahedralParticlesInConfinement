@@ -49,11 +49,11 @@ namespace TetrahedralParticlesInConfinement {
         
         if (info.full_neighbor_list) {
             int_list_t index;
-            for (int i=0; i<neighbor_list.size(); i++) {
+            for (unsigned int i=0; i<neighbor_list.size(); i++) {
                 index.push_back((int) neighbor_list[i].size());
             }
             
-            for (int i=0; i<neighbor_list.size(); i++) {
+            for (unsigned int i=0; i<neighbor_list.size(); i++) {
                 for (int j=0; j<index[i]; j++) {
                     int index_j = neighbor_list[i][j];
                     neighbor_list[index_j].push_back(i);

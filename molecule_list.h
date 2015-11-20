@@ -23,8 +23,6 @@ namespace TetrahedralParticlesInConfinement {
         //MoleculeList(const MoleculeList& other);    //copy constructor
         //MoleculeList operator=(MoleculeList rhs);   //assignment operator
         
-        int nparticle_per_molecule;
-        
         std::vector<TetramerPatchyColloid> molecule_list;
         std::vector<Colloid*> full_colloid_list;
         
@@ -42,7 +40,7 @@ namespace TetrahedralParticlesInConfinement {
         
         void addToMoleculeList(TetramerPatchyColloid&);
         void addToMoleculeList(const coord_t& center_of_mass);
-        void addToMoleculeList(const coord_list_t& center_of_mass, const coord_list_t& orientation, const Box& box);
+        void addToMoleculeList(const coord_list_t& center_of_mass, const coord_list_t& orientation);
         void addToMoleculeList(const coord_t& center_of_mass, const Box& box);
         
         coord_list_t& getMoleculeListCoord();
@@ -64,8 +62,9 @@ namespace TetrahedralParticlesInConfinement {
         friend std::ostream& operator << (std::ostream&, const MoleculeList&);
         
     protected:
-        double _bond_length;
         bool _is_good;
+        int nparticle_per_molecule;
+        double _bond_length;
         bool _is_bad;
         Box _box;
         

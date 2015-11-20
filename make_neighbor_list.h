@@ -28,8 +28,8 @@ namespace TetrahedralParticlesInConfinement {
         {}
         
         double cut_off_sqd;
-        bool built, sorted;
         int number_of_pairs;
+        bool built, sorted;
         bool full_neighbor_list;
     };
     

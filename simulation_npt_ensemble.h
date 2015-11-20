@@ -42,16 +42,15 @@ namespace TetrahedralParticlesInConfinement{
         void run(int nsteps);
         
     protected:
-        double _pressure;
-        int _update_volume_move_frequency_per_cycle;
-        int _steps;
-        
         SimulationNVTEnsemble& _NVT;
         RandomNumberGenerator& _rng;
         move_info _volume_info;
         MoleculeList old_list;
         Box	old_box;
+        double _pressure;
+        int _update_volume_move_frequency_per_cycle;
         UmbrellaSpring* _umbrella;
+        int _steps;
 
         int attemptVolumeMove();
         int attemptVolumeMoveOptimized();

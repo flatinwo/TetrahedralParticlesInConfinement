@@ -88,14 +88,14 @@ namespace TetrahedralParticlesInConfinement {
     }
     
     void matrix_vector_product(coord_list_t& A, coord_t& x){
-        const int dim = (int) x.size();
+        unsigned long dim = x.size();
         assert(A.size() == dim);
         assert(A[0].size() == dim);
         
         coord_t b(dim, 0.);
         
-        for (int i=0; i<dim; i++){
-            for (int j=0; j<dim; j++) b[i] += A[i][j]*x[j];
+        for (unsigned long i=0; i<dim; i++){
+            for (unsigned long j=0; j<dim; j++) b[i] += A[i][j]*x[j];
         }
         
         x = b;

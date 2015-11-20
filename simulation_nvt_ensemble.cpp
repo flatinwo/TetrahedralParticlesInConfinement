@@ -93,7 +93,7 @@ namespace TetrahedralParticlesInConfinement{
     void SimulationNVTEnsemble::setUpdateMoveFrequencyPerCycle(int num){
         _update_move_frequency_per_cycle = num*(int)_molecule_list.getFullColloidListCoord().size();
     }
-    
+   /*
     void SimulationNVTEnsemble::setUpdateNeighborFrequencyPerCycle(int num){
         double diameter = _molecule_list.molecule_list[0].colloid_list[0].diameter;
         double avg_distance_moved =
@@ -101,7 +101,7 @@ namespace TetrahedralParticlesInConfinement{
         
         assert(avg_distance_moved < diameter);
     }
-    
+    */
     void SimulationNVTEnsemble::UpdateNeighborFrequencyPerCycle(){
         _update_neighbors_frequency_per_cycle = (int) floor(_molecule_list.molecule_list[0].colloid_list[0].diameter/_move_info_map[TRANSLATE].delta_move);
     }
@@ -334,7 +334,7 @@ namespace TetrahedralParticlesInConfinement{
     
     double SimulationNVTEnsemble::computeMoleculeEnergy(int index){
         _pair_info.overlap = false;
-        assert(index < _molecule_list.molecule_list.size());
+        assert(index < (int)_molecule_list.molecule_list.size());
         double energy = compute_pair_molecule_energy_full(index, _molecule_list, _box, _pair_info,_neighbor_list.first, _neighbor_list.second);
         
         if (confinement == NULL) {
@@ -350,7 +350,7 @@ namespace TetrahedralParticlesInConfinement{
     
     int SimulationNVTEnsemble::attemptMove(int i){
         
-        assert(i < _molecule_list.full_colloid_list.size());
+        assert(i < (int) _molecule_list.full_colloid_list.size());
         
         if (!(_molecule_list.full_colloid_list[i]->core)) {
             _flag = ROTATE;
@@ -550,7 +550,7 @@ namespace TetrahedralParticlesInConfinement{
     
     void SimulationNVTEnsemble::saveConfig(int index){
         
-        assert(index < _molecule_list.full_colloid_list.size());
+        assert(index < (int) _molecule_list.full_colloid_list.size());
         _old_config.clear();
         
         if (_flag == TRANSLATE){

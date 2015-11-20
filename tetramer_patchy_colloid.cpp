@@ -89,7 +89,7 @@ namespace TetrahedralParticlesInConfinement {
     }
     
     
-    void TetramerPatchyColloid::setCenterOfMasses(const coord_list_t& x, const coord_list_t& orientation, const Box& box){
+    void TetramerPatchyColloid::setCenterOfMasses(const coord_list_t& x, const coord_list_t& orientation){
         assert((int) x.size() == _number_of_particles);
         
         for (unsigned int i=0; i<x.size(); i++) {
@@ -153,7 +153,7 @@ namespace TetrahedralParticlesInConfinement {
         orientation_list.resize(_number_of_particles-1);
         assert(orientation_list.size() == Template.orientation_list.size());
         orientation_list = Template.orientation_list; 
-        assert(colloid_list.size()==_number_of_particles);
+        assert((int)colloid_list.size()==_number_of_particles);
     }
     
     

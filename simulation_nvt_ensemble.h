@@ -130,11 +130,12 @@ namespace TetrahedralParticlesInConfinement{
             };
             
             unsigned long count;
-            unsigned int frequency;
             double pressure_sum;
-            double scale_factor, _inverse_scale_factor;
+            double scale_factor;
             PressureMode _pressure_config;
             double inverseVolume;
+            unsigned int frequency;
+            double _inverse_scale_factor;
             
             
             void reset(){

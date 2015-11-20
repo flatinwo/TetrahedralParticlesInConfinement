@@ -81,10 +81,10 @@ namespace TetrahedralParticlesInConfinement {
     }
     
     
-    void MoleculeList::addToMoleculeList(const coord_list_t& x_c, const coord_list_t& orientation, const Box& box){
+    void MoleculeList::addToMoleculeList(const coord_list_t& x_c, const coord_list_t& orientation){
         int n = (int) molecule_list.size();
         TetramerPatchyColloid A(_bond_length);
-        A.setCenterOfMasses(x_c, orientation, box);
+        A.setCenterOfMasses(x_c, orientation);
         A.setMoleculeID(n);
         molecule_list.push_back(A);
         buildFullColloidListPointer();
@@ -199,7 +199,7 @@ namespace TetrahedralParticlesInConfinement {
     void MoleculeList::setMoleculeListOrientation(coord_list_t& data){
         assert(data.size() == _orientation_list.size());
         _orientation_list.clear();
-        for (int i=0; i<molecule_list.size(); i++) {
+        for (unsigned int i=0; i<molecule_list.size(); i++) {
             _orientation_list.push_back(data[i]);
         }
     }
@@ -208,7 +208,7 @@ namespace TetrahedralParticlesInConfinement {
     void MoleculeList::setMoleculeListDiameter(double diameter){
         assert(molecule_list.size() > 0);
         for (unsigned int i=0; i < molecule_list.size(); i++){
-            //molecule_list[i].setColloidDiameter(diameter);
+            molecule_list[i].setColloidDiameter(diameter);
         }
     }
     

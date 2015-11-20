@@ -43,17 +43,18 @@ namespace TetrahedralParticlesInConfinement {
         
         Colloid():
         _center_of_mass(3,0.0),
-        diameter(1.),
         orientation(3),
         quaternion(4),
+        diameter(1.),
+        molecule_id(0),
         core(false),
-        bound(false),
-        molecule_id(0)
+        bound(false)
         {}
         
         coord_t _center_of_mass;
         coord_t orientation;
         coord_t quaternion;
+        double diameter;
         int molecule_id;
         bool core;
         bool bound;
@@ -70,7 +71,6 @@ namespace TetrahedralParticlesInConfinement {
         
         double getDiameterSq(){return diameter*diameter;}
         
-        double diameter;
     };
     
     struct Box{
@@ -85,8 +85,8 @@ namespace TetrahedralParticlesInConfinement {
         coord_t box_lo;
         coord_t box_hi;
         coord_t box_period;
-        
         bool_list_t periodic;
+        
         
         void clear(){
             box_lo.clear();
@@ -104,7 +104,7 @@ namespace TetrahedralParticlesInConfinement {
     
     
     struct Lattice{
-        
+    public:
         Lattice():
         density(1.0),
         number_of_lattice_points(216)
@@ -122,17 +122,21 @@ namespace TetrahedralParticlesInConfinement {
         void setNumberOfLatticePoints(int n){number_of_lattice_points = n;};
         void setDensity(double dens){density = dens;};
         
+        
     protected:
         coord_list_t points;
         coord_list_t base_vectors;
         std::string lattice_type;
-        int number_of_lattice_points;
         double _lattice_spacing;
         double density;
+        int number_of_lattice_points;
+        
+        
     };
     
     
     struct UmbrellaSpring{
+        
         UmbrellaSpring():
         order_parameter(0.5),
         spring_constant(10.),
@@ -147,9 +151,11 @@ namespace TetrahedralParticlesInConfinement {
         double getUmbrellaEnergy(double val){
             return 0.5*spring_constant*pow(val - order_parameter, 2.0);
         }
+        
     };
     
     struct Wall{
+        
         Wall():
         type("WCA"),
         position(0.),
@@ -158,16 +164,19 @@ namespace TetrahedralParticlesInConfinement {
             
         }
         
-        double position;
-        std::string type;
         enum Axis {X, Y, Z};
         enum Location {TOP, BOTTOM};
-        Axis axis;
+
+        std::string type;
+        double position;
         Location location;
+        Axis axis;
+        
     };
     
     struct Plates{
         friend class Simulation;
+    public:
         
         Plates():
         _separation(6.0){
@@ -177,14 +186,15 @@ namespace TetrahedralParticlesInConfinement {
             _walls[1].location = Wall::TOP;
         }
         
-    public:
         void setPlateSeparation(double sep){ _separation = sep; _walls[1].position = _walls[0].position + _separation;}
         void setPlateAxis(Wall::Axis axis){_walls[0].axis = _walls[1].axis = axis;}
         std::vector<Wall>& getWalls(){return _walls;};
         
+        
     protected:
         double _separation;
         std::vector<Wall> _walls;
+        
     };
     
 }

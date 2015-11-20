@@ -38,7 +38,7 @@ namespace TetrahedralParticlesInConfinement {
     //update trajectories of total system
     void translate(coord_list_t& x, Box& box, move_info& translate_info){
         
-        for (int i=0;i<x.size();i++){
+        for (unsigned int i=0;i<x.size();i++){
             translate(x[i],box,translate_info);
         }
     }
@@ -124,7 +124,7 @@ namespace TetrahedralParticlesInConfinement {
         
         int dim = (int) molecule.colloid_list.size();
         
-        for (unsigned int i=0; i< dim; i++) {
+        for (int i=0; i< dim; i++) {
             rotate(molecule.colloid_list[i], QR);
             if (i<dim-1) matrix_vector_product(QR.second, molecule.orientation_list[i]);
         }
@@ -153,7 +153,7 @@ namespace TetrahedralParticlesInConfinement {
         
         int dim = (int) molecule.colloid_list.size();
         
-        for (unsigned int i=0; i< dim; i++) {
+        for (int i=0; i< dim; i++) {
             rotate(molecule.colloid_list[i], box, QR);
             if (i<dim-1) matrix_vector_product(QR.second, molecule.orientation_list[i]);
         }
@@ -198,7 +198,7 @@ namespace TetrahedralParticlesInConfinement {
         coord_list_t R = temp_pair.second;
         coord_list_t temp;
         
-        for (int n=0; n<orientation_list.size(); n++) {
+        for (unsigned int n=0; n<orientation_list.size(); n++) {
             coord_t temp0 = orientation_list[n];
             coord_t temp1;
             for (int i=0; i<3; i++) {
@@ -222,7 +222,7 @@ namespace TetrahedralParticlesInConfinement {
         coord_list_t R = temp_pair.second;
         coord_list_t temp;
         
-        for (int n=0; n<orientation_list.size(); n++) {
+        for (unsigned int n=0; n<orientation_list.size(); n++) {
             coord_t temp0 = orientation_list[n];
             coord_t temp1;
             for (int i=0; i<3; i++) {
@@ -244,7 +244,7 @@ namespace TetrahedralParticlesInConfinement {
     // will this function ever be called?
     void rotate(coord_list_t& orientation_list, move_info& rotate_info){
         
-        for (int i=0;i<orientation_list.size();i++){
+        for (unsigned int i=0;i<orientation_list.size();i++){
             rotate(orientation_list[i],rotate_info);
         }
     }
@@ -381,7 +381,7 @@ namespace TetrahedralParticlesInConfinement {
             return;
         }
         
-        for (unsigned int i=0; i<n; i++) {
+        for (int i=0; i<n; i++) {
             rescale(x[i], s);
         }
         

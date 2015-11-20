@@ -30,6 +30,7 @@ namespace TetrahedralParticlesInConfinement{
     }
     
     void Simulation::run(int nstep){
+        assert(nstep>0);
         assert(0);
     }
     
@@ -42,7 +43,7 @@ namespace TetrahedralParticlesInConfinement{
     
     void Simulation::setMoleculeList(MoleculeList& molecule_list){
         assert(0);
-        //_molecule_list = molecule_list; //define assignment operator
+        _molecule_list = molecule_list; //define assignment operator
     }
     
     void Simulation::setNMovesPerCycle(double nmovespercycle){
@@ -93,8 +94,9 @@ namespace TetrahedralParticlesInConfinement{
     }
     
     double Simulation::computeEnergy(int index){
+        assert(index >0);
         assert(0);
-        return 0.;
+        return 0;
         
     }
     
@@ -140,7 +142,7 @@ namespace TetrahedralParticlesInConfinement{
     
     void Simulation::addPlates(Plates& plate){
         //first do not allow this to be called if system has been built already
-        int nmolecules = (int) _molecule_list.molecule_list.size();
+        unsigned int nmolecules = (unsigned int) _molecule_list.molecule_list.size();
         
         for (unsigned int i=0; i<nmolecules-1; i++) _molecule_list.popBackMolecule();  //clear molecule list except last molecule, which is at coordinates (1,1,1)
         
