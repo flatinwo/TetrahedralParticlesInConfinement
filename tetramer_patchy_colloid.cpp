@@ -116,6 +116,12 @@ namespace TetrahedralParticlesInConfinement {
         _bond_length = length;
     }
     
+    void TetramerPatchyColloid::setColloidDiameter(double diam){
+        for (std::vector<Colloid>::iterator it =colloid_list.begin(); it!=colloid_list.end(); ++it) {
+            it->diameter = diam;
+        }
+    }
+    
 #pragma mark BUILDS
     void TetramerPatchyColloid::buildMolecule(){
         
