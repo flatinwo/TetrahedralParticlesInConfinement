@@ -231,7 +231,8 @@ namespace TetrahedralParticlesInConfinement{
     }
     
     void AnalyzeSimulationStepSize::gibbs_run(int nsteps){
-        //_Gibbs->run(nsteps);
+         nsteps = 0;
+	 //_Gibbs->run(nsteps);
         
     }
     
