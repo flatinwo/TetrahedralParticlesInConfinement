@@ -14,18 +14,16 @@ namespace TetrahedralParticlesInConfinement{
     
     double distancesq(coord_t& x1, coord_t& x2, Box& box){
         unsigned long dim = x1.size();
-        
-        coord_t dx(dim);
-        
+
         if (dim != x2.size())
             assert(0);
         
-        double sum = 0.0;
+        double sum = 0.0, dx = 0.;
         
         for (unsigned int j=0; j<dim; j++){
-            dx[j] = x1[j]-x2[j];
-            pbc(dx[j],box.box_period[j],box.periodic[j]);
-            sum += dx[j]*dx[j];
+            dx = x1[j]-x2[j];
+            pbc(dx,box.box_period[j],box.periodic[j]);
+            sum += dx*dx;
         }
         return sum;
     }
@@ -34,22 +32,20 @@ namespace TetrahedralParticlesInConfinement{
     double_coord_t distancesqandvec(coord_t& x1, coord_t& x2, Box& box){
         unsigned long dim = x1.size();
         
-        coord_t dx(dim);
         double_coord_t temp;
         
         if (dim != x2.size())
             assert(0);
         
-        double sum = 0.0;
+        double sum = 0.0,dx=0.;
         
         for (unsigned int j=0; j<dim; j++){
-            dx[j] = x1[j]-x2[j];
-            pbc(dx[j],box.box_period[j],box.periodic[j]);
-            sum += dx[j]*dx[j];
+            dx = x1[j]-x2[j];
+            pbc(dx,box.box_period[j],box.periodic[j]);
+            sum += dx*dx;
+            temp.second.push_back(dx);
         }
         temp.first = sum;
-        temp.second = dx;
-        
         return temp;
     }
     
@@ -57,17 +53,16 @@ namespace TetrahedralParticlesInConfinement{
     double distancesq(coord_t& x1, coord_t& x2, coord_t& box_period, bool_list_t& periodic){
         
         unsigned long dim = x1.size();
-        coord_t dx(dim);
         
         if (dim != x2.size())
             assert(0);
         
-        double sum = 0.0;
+        double sum = 0.0, dx = 0.;
         
         for (unsigned int j=0; j<dim; j++){
-            dx[j] = x1[j]-x2[j];
-            pbc(dx[j],box_period[j],periodic[j]);
-            sum += dx[j]*dx[j];
+            dx = x1[j]-x2[j];
+            pbc(dx,box_period[j],periodic[j]);
+            sum += dx*dx;
         }
         return sum;
         
@@ -76,16 +71,15 @@ namespace TetrahedralParticlesInConfinement{
     double distancesq(coord_t& x1, coord_t& x2){
         
         unsigned long dim = x1.size();
-        coord_t dx(dim);
         
         if (dim != x2.size())
             assert(0);
         
-        double sum = 0.0;
+        double sum = 0.0,dx=0.;
         
         for (unsigned int j=0; j<dim; j++){
-            dx[j] = x1[j]-x2[j];
-            sum += dx[j]*dx[j];
+            dx = x1[j]-x2[j];
+            sum += dx*dx;
         }
         return sum;
         
