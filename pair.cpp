@@ -14,7 +14,8 @@
 
 namespace TetrahedralParticlesInConfinement {
     
-#define ONEOVER15 0.06666666666666666
+#define ONEOVER15 0.06666666666
+#define WCACUTOFF 1.12246204831
     
     double compute_pair_energy(Colloid& colloid1, Colloid& colloid2,
                                Box& box, pair_info& info){
@@ -229,20 +230,19 @@ namespace TetrahedralParticlesInConfinement {
         
         if (dz < 0.) {
             info.overlap = true;
-            return BIG_NUM;
             std::cerr << "Particle on wrong side of the wall\n";
-            exit(EXIT_FAILURE);
+            // return BIG_NUM;
+            // exit(EXIT_FAILURE);
         }
         
-        //if (dz >= info.cut_off_criteria)
-        if (dz >= box.box_period[m])
+        if (dz > WCACUTOFF)
             return 0.;
         else{
-            double rinv = 1./dz;
+            double rinv = 1.0/dz;
             double r3inv = rinv*rinv*rinv;
-            double r9inv = r3inv*r3inv*r3inv;
+            double r6inv = r3inv*r3inv;
             
-            return info.energy_scale*(ONEOVER15*r9inv - 0.5*r3inv);
+            return 4.0*info.energy_scale*(r6inv*(r6inv - 1.0) + 0.25);
         }
         
     }
