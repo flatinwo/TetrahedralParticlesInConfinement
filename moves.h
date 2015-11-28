@@ -78,6 +78,9 @@ namespace TetrahedralParticlesInConfinement {
     void rescale(MoleculeList& System, double s);
     void rescale(MoleculeList& System, Box& box, double s);
     
+    void rescale2D(Box& box, double s);
+    void rescale2D(MoleculeList& System, Box& box, double s);
+    
     void anisotropic_box_move(coord_list_t& x, Box& box, move_info& box_move_info);
     void isotropic_box_move(coord_list_t& x, Box& box, move_info& box_move_info);
     

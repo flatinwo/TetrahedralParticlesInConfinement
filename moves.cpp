@@ -427,8 +427,37 @@ namespace TetrahedralParticlesInConfinement {
         }
     }
     
+    void rescale2D(Box& box, double s){
+        int dim = (int) box.box_lo.size();
+        
+        //Box must be non-periodic in 2D
+        assert(!box.periodic[2]); //z-direction
+        assert(dim>0);
+        
+        for (unsigned int i=0; i<dim-1; i++) {
+            box.box_lo[i] *= s;
+            box.box_hi[i] *= s;
+            box.box_period[i] *= s;
+        }
+
+    }
+    
+    void rescale2D(MoleculeList& System, Box& box, double s){
+        rescale2D(box, s);
+        
+        int dim = (int) System.molecule_list.size();
+        
+        assert(dim>0);
+        
+        for (int i=0; i<dim; i++) {
+            coord_t x = System.molecule_list[i].colloid_list[0]._center_of_mass;
+            x[0] *= s; x[1] *= s;
+            System.molecule_list[i].setCenterOfMass(x,box);
+        }
+    }
+    
     // Generate gaussian random number, mean zero and variance 1
-    double gasdev(){
+    inline double gasdev(){
         static bool available = false;
         static double gset;
         double fac, rsq, v1, v2;

@@ -140,11 +140,11 @@ namespace TetrahedralParticlesInConfinement{
         }
     }
     
-    void Simulation::addPlates(Plates& plate){
+    void Simulation::addPlates(Plates& plate, bool rebuild){
         //first do not allow this to be called if system has been built already
         unsigned int nmolecules = (unsigned int) _molecule_list.molecule_list.size();
         
-        for (unsigned int i=0; i<nmolecules-1; i++) _molecule_list.popBackMolecule();  //clear molecule list except last molecule, which is at coordinates (1,1,1)
+        if (rebuild) for (unsigned int i=0; i<nmolecules-1; i++) _molecule_list.popBackMolecule();
         
         confinement = &plate; //sets-up plates
         

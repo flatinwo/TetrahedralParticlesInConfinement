@@ -78,9 +78,17 @@ namespace TetrahedralParticlesInConfinement{
         
         double old_density = getDensity();
         _density = density;
-        double s = pow(old_density/_density,1./3.);
         
-        rescale(_molecule_list, _box, s);
+        if (confinement == NULL) {
+            double s = pow(old_density/_density,1./3.);
+            rescale(_molecule_list, _box, s);
+        }
+        else{
+            double s = pow(old_density/_density,0.5);
+            rescale2D(_molecule_list, _box, s);
+
+        }
+
         
         computeVolume();
         if (pressureCalculation) {
