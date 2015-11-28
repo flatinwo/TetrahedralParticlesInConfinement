@@ -41,7 +41,7 @@ namespace TetrahedralParticlesInConfinement {
         
         void addToMoleculeList(const coord_t&);
         void addMolecule();
-        void addPlates(Plates& plates);
+        void addPlates(Plates& plates, bool rebuild=true);
         void addMoleculeWithoutOverlaps();
         
         void removeMolecule(int);

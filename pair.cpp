@@ -230,8 +230,8 @@ namespace TetrahedralParticlesInConfinement {
         
         if (dz < 0.) {
             info.overlap = true;
-            std::cerr << "Particle on wrong side of the wall\n";
-            // return BIG_NUM;
+            //std::cerr << "Particle on wrong side of the wall\n";
+             return BIG_NUM;
             // exit(EXIT_FAILURE);
         }
         
