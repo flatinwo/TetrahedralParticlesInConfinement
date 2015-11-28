@@ -150,7 +150,7 @@ namespace TetrahedralParticlesInConfinement{
         
         //set-up box, i.e. remove periodicity in one of the axis
         assert(confinement->_walls[0].axis == confinement->_walls[1].axis); //make sure we have the walls in the same axis
-        assert(confinement->_walls[0].axis < _box.periodic.size());  //make sure axis specification is right
+        assert((unsigned int) confinement->_walls[0].axis < _box.periodic.size());  //make sure axis specification is right
         
         
         int m = confinement->_walls[0].axis;
