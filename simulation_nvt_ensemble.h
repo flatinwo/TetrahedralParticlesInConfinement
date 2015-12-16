@@ -78,6 +78,7 @@ namespace TetrahedralParticlesInConfinement{
         void   computeVolume(); //make return
         double computePressure(double dv=0.01, PressureMode mode=COMPRESSION);
         void   tallyPressure();
+        void   addExpansionGhostMovesForPressure();
         
         
     protected:
@@ -150,7 +151,13 @@ namespace TetrahedralParticlesInConfinement{
                     _inverse_scale_factor *= -1.0;
             }
             
+            double average(){
+                return pressure_sum/(double) count;
+            }
+            
         } _pressure_log;
+        
+        std::unique_ptr<PressureLog> _pressure_log_expansion;
         
         enum {TRANSLATE = 0, ROTATE = 1, ROTATEMOLECULE=2};
         enum {REJECT = 0, ACCEPT = 1};

@@ -175,7 +175,8 @@ namespace TetrahedralParticlesInConfinement {
         double s = pow(new_v/old_v,1./3.);
         
         //rescale box
-        rescale(old_list, old_box, s);
+        if (!_NVT.confinement) rescale(old_list, old_box, s);
+        else rescale2D(old_list, old_box, s);
         
         double new_e = _NVT.computeEnergy(old_list,old_box);
         double Npart = _NVT.getMoleculeList().molecule_list.size();

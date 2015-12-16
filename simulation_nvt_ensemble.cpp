@@ -61,7 +61,7 @@ namespace TetrahedralParticlesInConfinement{
     
     
     SimulationNVTEnsemble::~SimulationNVTEnsemble(){
-        
+
     }
     
     
@@ -91,9 +91,14 @@ namespace TetrahedralParticlesInConfinement{
 
         
         computeVolume();
+        
         if (pressureCalculation) {
             _pressure_log.inverseVolume = 1./_volume;
             _pressure_log.refresh();
+            if (_pressure_log_expansion != NULL) {
+                _pressure_log_expansion->inverseVolume = 1./_volume;
+                _pressure_log_expansion->refresh();
+            }
         }
         buildNeighborList();
     }
@@ -131,6 +136,12 @@ namespace TetrahedralParticlesInConfinement{
             _pressure_log.reset();
             _pressure_log.inverseVolume = 1./getVolume();
             _pressure_log.refresh();
+            
+            if (_pressure_log_expansion != NULL) {
+                _pressure_log_expansion->reset();
+                _pressure_log_expansion->inverseVolume = 1./_volume;
+                _pressure_log_expansion->refresh();
+            }
         }
     }
     
@@ -143,12 +154,20 @@ namespace TetrahedralParticlesInConfinement{
         _pressure_log.scale_factor = dv;
         _pressure_log.inverseVolume = 1./getVolume();
         _pressure_log.refresh();
+        
+        if (_pressure_log_expansion != NULL) {
+            _pressure_log_expansion->scale_factor = dv;
+            _pressure_log_expansion->inverseVolume = 1./getVolume();
+            _pressure_log_expansion->refresh();
+        }
+        
     }
     
     
 #pragma mark RESETS
     void SimulationNVTEnsemble::resetPressureTally(){
         _pressure_log.reset();
+        if (_pressure_log_expansion != NULL) _pressure_log_expansion->reset();
     }
     
 #pragma mark GETS
@@ -181,10 +200,25 @@ namespace TetrahedralParticlesInConfinement{
     
     double SimulationNVTEnsemble::getPressure(){
         assert(_pressure_log.count > 0);
-        return _pressure_log._inverse_scale_factor*_temperature*(log(_pressure_log.pressure_sum /(double) _pressure_log.count));
+        if (_pressure_log_expansion == NULL) {
+            return _pressure_log._inverse_scale_factor*_temperature*(log(_pressure_log.pressure_sum /(double) _pressure_log.count));
+        }
+        else{
+            return _temperature*(_density + _pressure_log_expansion->_inverse_scale_factor*log(_pressure_log_expansion->average()) + _pressure_log._inverse_scale_factor*log(_pressure_log.average()));
+        }
+
     }
     
 #pragma mark OTHERS
+    void SimulationNVTEnsemble::addExpansionGhostMovesForPressure(){
+        assert(pressureCalculation);
+        _pressure_log_expansion.reset(new PressureLog(_pressure_log));
+        _pressure_log_expansion->_pressure_config = EXPANSION;
+        _pressure_log_expansion->refresh();
+    }
+    
+    
+    
     void SimulationNVTEnsemble::run(int nstep){
         
         // UpdateNeighborFrequencyPerCycle();
@@ -337,6 +371,11 @@ namespace TetrahedralParticlesInConfinement{
     void SimulationNVTEnsemble::tallyPressure(){
         _pressure_log.count++;
         _pressure_log.pressure_sum += computePressure(_pressure_log.scale_factor, _pressure_log._pressure_config);
+        
+        if (_pressure_log_expansion != NULL) {
+            _pressure_log_expansion->count++;
+            _pressure_log_expansion->pressure_sum += computePressure(_pressure_log_expansion->scale_factor, _pressure_log_expansion->_pressure_config);
+        }
     }
     
     
