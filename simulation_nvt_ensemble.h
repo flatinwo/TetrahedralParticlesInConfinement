@@ -16,6 +16,7 @@
 #include "moves.h"
 #include <string>
 #include <cassert>
+#include <memory>
 
 //question save config with static keyword
 //using function pointers or templates, i need to think.. we can compute
