@@ -129,6 +129,8 @@ namespace TetrahedralParticlesInConfinement {
     
     double compute_orientations(Colloid& colloid1, Colloid& colloid2, double_coord_t& dx, pair_info& info);
     
+    bool test_orientations(coord_t& r1, coord_t& r2, double_coord_t& pair_data, pair_info& info);
+    
     double evaluate_orientation(double alpha0, double beta0, double cut_off_criteria);
     
     enum {BIG_NUM=750};

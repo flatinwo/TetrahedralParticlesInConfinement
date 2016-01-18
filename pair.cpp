@@ -25,10 +25,7 @@ namespace TetrahedralParticlesInConfinement {
         
         //std::cout << colloid1.molecule_id << "\t" << colloid2.molecule_id << std::endl;
         
-        coord_t x1 = colloid1._center_of_mass;
-        coord_t x2 = colloid2._center_of_mass;
-        
-        double_coord_t temp = distancesqandvec(x2, x1, box); //order matters
+        double_coord_t temp = distancesqandvec(colloid2._center_of_mass, colloid1._center_of_mass, box); //order matters
         double rsq = temp.first;
         coord_t dx = temp.second;
         
@@ -105,20 +102,47 @@ namespace TetrahedralParticlesInConfinement {
         
         double cut_off_criteria = sqrt(rsq)*info.cut_off_orientation;
         
-        double sum_orientation = 0.;
         alpha0 = beta0 = 0.;
         for (unsigned int i=0; i<r1.size(); i++) {
             alpha0 += r1[i]*dx[i];
             beta0  -= r2[i]*dx[i];
         }
         
-        sum_orientation += evaluate_orientation(alpha0,beta0,cut_off_criteria);
-        return sum_orientation;
+        if ((alpha0 >= cut_off_criteria) && (beta0 >= cut_off_criteria) ) {
+            colloid1.bound = colloid2.bound = true;
+            colloid1.boundto = colloid2.colloid_id;
+            colloid2.boundto = colloid1.colloid_id;
+            return 1.;
+        }
+        else{
+            colloid1.bound = colloid2.bound = false;
+            colloid1.boundto = UINT_MAX;
+            colloid2.boundto = UINT_MAX;
+            return 0.;
+        }
+        
+        //sum_orientation += evaluate_orientation(alpha0,beta0,cut_off_criteria);
+        //return sum_orientation;
         
     }
     
     
-
+    bool test_orientations(coord_t& r1, coord_t& r2, double_coord_t& pair_data, pair_info& info){
+        double alpha0, beta0;
+        alpha0=beta0=0.;
+        coord_t dx = pair_data.second;
+        double rsq = pair_data.first;
+        
+        double cut_off_criteria = sqrt(rsq)*info.cut_off_orientation;
+        
+        for (unsigned int i=0; i<r1.size(); i++) {
+            alpha0 += r1[i]*dx[i];
+            beta0  -= r2[i]*dx[i];
+        }
+        
+        if ((alpha0 >= cut_off_criteria) && (beta0 >= cut_off_criteria) ) return true;
+        else return  false;
+    }
     
     double evaluate_orientation(double alpha0, double beta0, double cut_off_criteria){
         

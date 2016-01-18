@@ -35,7 +35,7 @@ namespace TetrahedralParticlesInConfinement {
         
         
         void buildMoleculeList(Lattice& lattice_list);
-        void buildMoleculeListAndBox(Lattice& lattice_list, Box& box);
+        void buildMoleculeListAndBox(Lattice& lattice_list, Box& box, double offset=2.0, bool perfect=false);
         void popBackMolecule();
         
         void addToMoleculeList(TetramerPatchyColloid&);

@@ -110,6 +110,21 @@ namespace TetrahedralParticlesInConfinement{
         return sqrt(distancesq(x1,x2));
     }
     
+    //the rsq, angular theta and phi between two particles
+    coord_t spherical_orientation(coord_t& x1, coord_t& x2, Box& box){
+        coord_t temp(3,0.);
+        double_coord_t result = distancesqandvec(x1, x2, box);
+        
+        double r = sqrt(result.first);
+        double theta = acos(result.second[2]/r); //assumes three-d vector
+        double phi = atan2(result.second[1], result.second[0]);
+        if (phi < 0) phi += 2.0*M_PI;
+        
+        temp[0] = r; temp[1] = theta; temp[2] = phi;
+        
+        return  temp;
+    }
+    
     void pbc(coord_t& x, const coord_t& period, const bool_list_t& periodic){
         for (unsigned int j=0; j<x.size();j++){
             pbc(x[j],period[j],periodic[j]);

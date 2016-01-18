@@ -29,6 +29,7 @@ namespace TetrahedralParticlesInConfinement{
         friend class TestSimulationNVTEnsemble;
         friend class SimulationNPTEnsemble;
         friend class UmbrellaSimulation;
+        friend class StructureAnalysis;
         
     public:
         SimulationNVTEnsemble(MoleculeList&, Box&, RandomNumberGenerator&);

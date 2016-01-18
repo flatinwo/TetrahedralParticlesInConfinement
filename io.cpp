@@ -344,7 +344,7 @@ namespace TetrahedralParticlesInConfinement {
         return os;
     }
     
-    std::ostream& operator << (std::ostream& os, function1d_t f){
+    std::ostream& operator << (std::ostream& os, function1d_t& f){
         for (function1d_t::iterator i=f.begin(); i!=f.end(); ++i){
             os << i->first << "\t" << i->second << "\n";
         }

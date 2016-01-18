@@ -86,6 +86,10 @@ namespace TetrahedralParticlesInConfinement{
         return _box;
     }
     
+    
+    pair_info& Simulation::getPairInfo(){
+        return _pair_info;
+    }
     //to be tested
     void Simulation::buildNeighborList(){
         _coords_since_last_neighbor_build = _molecule_list.getFullColloidListCoord();

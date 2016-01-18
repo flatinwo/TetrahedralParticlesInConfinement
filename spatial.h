@@ -35,6 +35,10 @@ namespace TetrahedralParticlesInConfinement{
     //vector separation between two particles
     coord_t distancevec(coord_t& x1, coord_t& x2, Box&);
     
+    //the r, angular theta and phi between two particles
+    coord_t spherical_orientation(coord_t& x1, coord_t& x2, Box&);
+
+    
     //are particles in the box
     bool are_particles_in_box(coord_t& x, Box& box);
     

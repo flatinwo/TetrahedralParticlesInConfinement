@@ -92,13 +92,12 @@ namespace TetrahedralParticlesInConfinement {
     
 
     
-    void MoleculeList::buildMoleculeListAndBox(Lattice& lattice_input, Box& box){
+    void MoleculeList::buildMoleculeListAndBox(Lattice& lattice_input, Box& box, double offset, bool perfect){
         
         buildMoleculeList(lattice_input);
         
         box.clear();
         double box_length = lattice_input.box_length;
-        double offset = 2.00;
         
         //Assumes all particles diameter are the same
         //set box that contains all particles
@@ -107,6 +106,7 @@ namespace TetrahedralParticlesInConfinement {
         
         for (int j=0;j<3;j++){//maybe not three dimensional
             double r = molecule_list[0].colloid_list[0]._center_of_mass[j];
+            if (perfect) r = 0.;
             box.box_lo.push_back( r - offset*radius);
             box.box_hi.push_back(box_length + offset*radius);
             box.box_period.push_back(box_length + 2*offset*radius - r);

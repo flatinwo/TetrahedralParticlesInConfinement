@@ -52,6 +52,7 @@ namespace TetrahedralParticlesInConfinement {
         
         MoleculeList& getMoleculeList();
         Box& getBox();
+        pair_info& getPairInfo();
         
         void buildNeighborList();
         

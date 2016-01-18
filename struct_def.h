@@ -14,6 +14,7 @@
 #include <string>
 #include <complex>
 #include <map>
+#include <climits>
 
 namespace TetrahedralParticlesInConfinement {
     
@@ -23,6 +24,7 @@ namespace TetrahedralParticlesInConfinement {
     typedef std::vector<bool> bool_list_t;
     typedef std::vector<coord_t> coord_list_t;
     typedef std::map<double,double> function1d_t;
+    typedef std::vector<unsigned int>  unsigned_list_t;
     
     typedef std::map<int,coord_list_t> vector1d_t;
     
@@ -32,6 +34,9 @@ namespace TetrahedralParticlesInConfinement {
     typedef std::vector<component_t> shpdesc_t;
     
     typedef std::vector< std::complex<double> > component_list_t;
+    
+    typedef std::pair<double, unsigned int> double_unsigned_pair_t;
+    typedef std::vector<double_unsigned_pair_t> double_unsigned_pair1d_t;
 
     
     
@@ -48,7 +53,9 @@ namespace TetrahedralParticlesInConfinement {
         diameter(1.),
         molecule_id(0),
         core(false),
-        bound(false)
+        bound(false),
+        boundto(UINT_MAX),
+        colloid_id(UINT_MAX)
         {}
         
         coord_t _center_of_mass;
@@ -58,6 +65,8 @@ namespace TetrahedralParticlesInConfinement {
         int molecule_id;
         bool core;
         bool bound;
+        unsigned int boundto;
+        unsigned int colloid_id;
         
         void setCenterOfMass(const coord_t& com){
             _center_of_mass = com;
@@ -97,6 +106,13 @@ namespace TetrahedralParticlesInConfinement {
         void updatePeriod(){
             for (unsigned int i=0; i< box_lo.size(); i++)
                 box_period[i] = box_hi[i] - box_lo[i];
+        }
+        
+        double getVolume(){
+            double vol = 1.;
+            for (auto& i : box_period)
+                vol *= i;
+            return vol;
         }
         
         

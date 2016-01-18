@@ -107,8 +107,10 @@ namespace TetrahedralParticlesInConfinement {
     }
     
     void TetramerPatchyColloid::setMoleculeID(int index){
-        for (unsigned int i=0; i<colloid_list.size(); i++) {
+        unsigned int dim = (unsigned int) colloid_list.size();
+        for (unsigned int i=0; i<dim; i++) {
             colloid_list[i].molecule_id = index;
+            colloid_list[i].colloid_id = index*dim + i;
         }
     }
     

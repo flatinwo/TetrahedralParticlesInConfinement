@@ -20,10 +20,14 @@
 using namespace TetrahedralParticlesInConfinement;
 
 int main(int argc, const char * argv[]) {
-   
+    TPC Engine;
+    Engine.run();
+    
+    
+   /*
     double density = 0.1;
-    double temperature = 0.072191;
-    double pressure = 0.0054;
+    double temperature = 0.062118;
+    double pressure = 0.004602;
     
     if (argc == 3) {
         temperature = atof(argv[1]);
@@ -45,7 +49,7 @@ int main(int argc, const char * argv[]) {
     
     
    
-    /* Build system with lattice*/
+    // Build system with lattice
     LatticeFCC lattice;
     lattice.setNumberOfLatticePoints(nmol);
     lattice.setDensity(1.1*density);
@@ -54,20 +58,20 @@ int main(int argc, const char * argv[]) {
     
     
     
-    /* Build NVT system */
+    // Build NVT system 
     SimulationNVTEnsemble simulation(System, box, rng);
     simulation.setCosAngleMax(0.825);
     simulation.setDensity(density);
     
     //update neighbor list info
     neighbor_list_info n_info;
-    n_info.cut_off_sqd = 6.0;
+    n_info.cut_off_sqd = 6.25;
     simulation.setNeighborInfo(n_info);
     
     
     UmbrellaSpring* density_bias = new UmbrellaSpring();
-    density_bias->order_parameter = 0.097;
-    density_bias->spring_constant = 15000.;
+    density_bias->order_parameter = 0.074;
+    density_bias->spring_constant = 20000.;
     
     SimulationNPTEnsemble npt(simulation, rng2, pressure);
     
@@ -150,8 +154,8 @@ int main(int argc, const char * argv[]) {
     //umbrella.run(50000);
     
     delete density_bias;
-    
+    */
     return 0;
-   
+
 
 }
