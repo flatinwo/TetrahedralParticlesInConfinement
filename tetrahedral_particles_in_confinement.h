@@ -26,6 +26,7 @@
 #include "simulation_npt_ensemble.h"
 #include "umbrella_simulation.h"
 #include "analyze_simulation_step_size.h"
+#include "radial_distribution_function.hpp"
 
 //how about multistate runs
 

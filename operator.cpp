@@ -28,7 +28,7 @@ namespace TetrahedralParticlesInConfinement {
     }
     
     coord_t hamilton_product(coord_t& q1, coord_t& q2){
-        coord_t product(4,0);
+        coord_t product(4,0.);
         
         assert(q1.size() == 4);
         assert(q1.size() == q2.size());

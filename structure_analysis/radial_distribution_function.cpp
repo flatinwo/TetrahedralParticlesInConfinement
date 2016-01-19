@@ -12,17 +12,21 @@
 #include "operator.h"
 
 namespace TetrahedralParticlesInConfinement {
-    RadialDistributionFunction::RadialDistributionFunction(SimulationNVTEnsemble* nvt):
+
+#define RDFSMALL 0.00001
+
+    RadialDistributionFunction::RadialDistributionFunction(SimulationNVTEnsemble* nvt, double bin_size):
     StructureAnalysis(nvt),
     _rdf_flags(bool_list_t(4,true)),
     _number_of_frames(0),
-    _bin_size(0.05),
+    _bin_size(bin_size),
     _rmax(-1),
     _vol(100000),
     _GofRs(4),
     _Hists(4),
     _hist_infos(4)
     {
+	assert(_bin_size > RDFSMALL);
         _initialize();
     }
     
@@ -144,9 +148,25 @@ namespace TetrahedralParticlesInConfinement {
     
     void RadialDistributionFunction::print(){
         _normalize();
-        std::cout << "After " << _number_of_frames << " the rdfs are the following\n";
-        for (unsigned int i=0; i<4; i++) std::cout << _GofRs[i] << std::endl << std::endl;
+        std::cout << "After " << _number_of_frames << " frames the rdfs are in gr files\n";
+	_openFiles();
+        for (unsigned int i=0; i<4; i++) *(_ofiles[i]) << _GofRs[i];
+	_closeFiles();
     }
+
+    void RadialDistributionFunction::_openFiles(){
+	_ofiles.resize(4);
+	_ofiles[0].reset(new std::ofstream("grcorecore.txt"));
+	_ofiles[1].reset(new std::ofstream("grcorepatch.txt"));
+	_ofiles[2].reset(new std::ofstream("grpatchpatch.txt"));
+	_ofiles[3].reset(new std::ofstream("grpatchpatchbonded.txt"));	
+    }
+
+    void RadialDistributionFunction::_closeFiles(){ 
+        for (unsigned int i=0; i<4; i++) _ofiles[i]->close();
+    }
+
+
     
 }
 

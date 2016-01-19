@@ -12,11 +12,13 @@
 #include <stdio.h>
 #include "structure_analysis.hpp"
 #include "histogram_dynamic.h"
+#include <fstream>
+#include <memory>
 
 namespace TetrahedralParticlesInConfinement {
     class RadialDistributionFunction: public StructureAnalysis{
     public:
-        RadialDistributionFunction(SimulationNVTEnsemble*);
+        RadialDistributionFunction(SimulationNVTEnsemble*, double binsize=0.05);
         
         void setComputeCoreCoreFlag(bool);
         void setComputeCorePatchFlag(bool);
@@ -51,11 +53,14 @@ namespace TetrahedralParticlesInConfinement {
         std::vector< _normalize_info > _hist_infos;
         pair_info _info;
         
-        
+	std::vector< std::shared_ptr<std::ofstream> > _ofiles;       
+ 
         void _updateGofRcorecore();
         void _updateGofRcorepatch();
         void _updateGofRpatchpatch();
         void _updateGofRpatchpatchbound();
+	void _openFiles();
+	void _closeFiles();
         
         void _initialize();
         void _normalize();
