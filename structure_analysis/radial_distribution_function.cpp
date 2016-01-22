@@ -149,24 +149,22 @@ namespace TetrahedralParticlesInConfinement {
     void RadialDistributionFunction::print(){
         _normalize();
         std::cout << "After " << _number_of_frames << " frames the rdfs are in gr files\n";
-	_openFiles();
+        _openFiles();
         for (unsigned int i=0; i<4; i++) *(_ofiles[i]) << _GofRs[i];
-	_closeFiles();
+        _closeFiles();
     }
 
     void RadialDistributionFunction::_openFiles(){
-	_ofiles.resize(4);
-	_ofiles[0].reset(new std::ofstream("grcorecore.txt"));
-	_ofiles[1].reset(new std::ofstream("grcorepatch.txt"));
-	_ofiles[2].reset(new std::ofstream("grpatchpatch.txt"));
-	_ofiles[3].reset(new std::ofstream("grpatchpatchbonded.txt"));	
+        _ofiles.resize(4);
+        _ofiles[0].reset(new std::ofstream("grcorecore.txt"));
+        _ofiles[1].reset(new std::ofstream("grcorepatch.txt"));
+        _ofiles[2].reset(new std::ofstream("grpatchpatch.txt"));
+        _ofiles[3].reset(new std::ofstream("grpatchpatchbonded.txt"));
     }
 
     void RadialDistributionFunction::_closeFiles(){ 
         for (unsigned int i=0; i<4; i++) _ofiles[i]->close();
     }
 
-
-    
 }
 

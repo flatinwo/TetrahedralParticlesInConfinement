@@ -53,14 +53,14 @@ namespace TetrahedralParticlesInConfinement {
         std::vector< _normalize_info > _hist_infos;
         pair_info _info;
         
-	std::vector< std::shared_ptr<std::ofstream> > _ofiles;       
+        std::vector< std::shared_ptr<std::ofstream> > _ofiles;       
  
         void _updateGofRcorecore();
         void _updateGofRcorepatch();
         void _updateGofRpatchpatch();
         void _updateGofRpatchpatchbound();
-	void _openFiles();
-	void _closeFiles();
+        void _openFiles();
+        void _closeFiles();
         
         void _initialize();
         void _normalize();
