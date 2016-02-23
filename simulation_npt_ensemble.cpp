@@ -20,6 +20,7 @@ namespace TetrahedralParticlesInConfinement {
         vol_move_per_cycle = 2;
         _steps = 0;
         _umbrella = NULL;
+        _umbrella_q6 = NULL;
         
     }
     
@@ -48,7 +49,17 @@ namespace TetrahedralParticlesInConfinement {
     }
     
     void SimulationNPTEnsemble::addUmbrellaSpring(UmbrellaSpring& umbrella){
-        _umbrella = &umbrella;
+        if (_umbrella == NULL) _umbrella = &umbrella;
+        else {
+            _umbrella_q6 = &umbrella;
+            oldQ.reset(new BondStructureAnalysis(&old_list,&old_box));
+            newQ.reset(new BondStructureAnalysis(&_NVT));
+            
+            oldQ->setMaxNumberOfNearestNeighbors(4);
+            newQ->setMaxNumberOfNearestNeighbors(4);
+            oldQ->setRcutOff(3.4);
+            newQ->setRcutOff(3.4);
+        }
     }
     
 #pragma mark GETS
@@ -82,9 +93,15 @@ namespace TetrahedralParticlesInConfinement {
                 _NVT.run();
             else
                 attemptVolumeMoveOptimized();// attemptVolumeMove();
-            _steps++;
+            if (i % nmoleculesplus1 == 0)_steps++;
         }
         
+    }
+    
+    void SimulationNPTEnsemble::sample(){
+        std::cout << _steps << "\t" << _NVT.getDensity();
+        if (_umbrella_q6 != NULL) std::cout << "\t" << newQ->getQl();
+        std::cout << std::endl;
     }
     
     int SimulationNPTEnsemble::attemptVolumeMove(){
@@ -198,6 +215,15 @@ namespace TetrahedralParticlesInConfinement {
             double new_density = old_density*old_v/new_v;
             
             arg += (_umbrella->getUmbrellaEnergy(new_density) - _umbrella->getUmbrellaEnergy(old_density)); //it may be more optimal to do this in volume
+        }
+        
+        if (_umbrella_q6 != NULL) {
+            oldQ->compute();
+            newQ->compute();
+            
+            std::cout << oldQ->getQl()  << "\t" << newQ->getQl() << std::endl;
+            
+            arg += (_umbrella_q6->getUmbrellaEnergy(newQ->getQl()) - _umbrella_q6->getUmbrellaEnergy(oldQ->getQl()));
         }
         
         if (_rng.randDouble() > exp(-arg/_NVT.getTemperature())) {

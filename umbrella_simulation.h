@@ -13,6 +13,9 @@
 #include <stdio.h>
 #include "struct_def.h"
 #include "simulation_npt_ensemble.h"
+#include "bond_structure_analysis.hpp"
+#include <memory>
+
 //#include "simulation_gibbs_ensemble.h"
 
 namespace TetrahedralParticlesInConfinement {
@@ -21,11 +24,15 @@ namespace TetrahedralParticlesInConfinement {
     class UmbrellaSimulation{
     public:
         UmbrellaSimulation(SimulationNPTEnsemble&, RandomNumberGenerator&, UmbrellaSpring*);
+        UmbrellaSimulation(SimulationNPTEnsemble&, RandomNumberGenerator&, UmbrellaSpring*, UmbrellaSpring*);
+        
         
         void setUmbrellaType(int);
         void setUmbrellaRestraintValue(double);
         void setUmbrellaRestraintSpringConstant(double);
         void setEquilibrate(bool);
+        void setSampleFrequency(int);
+        void setMCSweepsperUmbrellaSweep(int);
         
         double getRunningAverage();
         
@@ -35,9 +42,11 @@ namespace TetrahedralParticlesInConfinement {
         void run(int nstep);
         void run(std::pair<int,int>& step_data);
         void resetRunningAverage();
+        void resetSteps();
         
     protected:
         int _nstepsMC;
+        unsigned int _nsampleFrequency;
         double _E, _restrain_value;
         double _beta;
         bool _equilibrate;
@@ -54,11 +63,16 @@ namespace TetrahedralParticlesInConfinement {
         SimulationGibbsEnsemble* _Gibbs; //use null to switch the flow
         RandomNumberGenerator* _rng;
         UmbrellaSpring* _umbrella;
+        UmbrellaSpring* _umbrella1;
+        
+        std::unique_ptr<BondStructureAnalysis> _q6analysis;
         
         std::ofstream _ofile;			//< File to write umbrella data to
         
         struct Config_t{
             double _old_density;
+            double _Q6;
+            double _E;
             coord_list_t _old_coord_list;
             MoleculeList _old_list;
             Box _old_box;
@@ -70,7 +84,7 @@ namespace TetrahedralParticlesInConfinement {
         
         int _steps;
         
-        enum {DENSITY=0, Q6=1};
+        enum {DENSITY=0, Q6=1, DENSITYANDQ6=2};
     };
 }
 

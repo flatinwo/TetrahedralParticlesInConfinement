@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "struct_def.h"
 #include "simulation_nvt_ensemble.h"
+#include "bond_structure_analysis.hpp"
 
 namespace TetrahedralParticlesInConfinement{
     class SimulationNPTEnsemble{
@@ -22,12 +23,14 @@ namespace TetrahedralParticlesInConfinement{
     public:
         SimulationNPTEnsemble(SimulationNVTEnsemble& NVT, RandomNumberGenerator& rng, double pressure = 1.0);
         SimulationNPTEnsemble(SimulationNVTEnsemble& NVT, RandomNumberGenerator& rng, double pressure, UmbrellaSpring&);
+        SimulationNPTEnsemble(SimulationNVTEnsemble& NVT, RandomNumberGenerator& rng, double pressure, UmbrellaSpring&, UmbrellaSpring);
         ~SimulationNPTEnsemble();
         
         int vol_move_per_cycle; //this is chosen -1
         
         void setPressure(double);
         void setDensity(double);
+        void sample();
 
         
         double getPressure();
@@ -49,11 +52,20 @@ namespace TetrahedralParticlesInConfinement{
         Box	old_box;
         double _pressure;
         int _update_volume_move_frequency_per_cycle;
+        
         UmbrellaSpring* _umbrella;
+        UmbrellaSpring* _umbrella_q6;
+        
         int _steps;
 
         int attemptVolumeMove();
         int attemptVolumeMoveOptimized();
+        
+        std::shared_ptr<BondStructureAnalysis> oldQ;
+        std::shared_ptr<BondStructureAnalysis> newQ;
+        
+        std::ostringstream _os;
+        
     };
 }
 

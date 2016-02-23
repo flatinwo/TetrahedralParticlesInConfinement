@@ -18,6 +18,7 @@ namespace  TetrahedralParticlesInConfinement{
     class StructureAnalysis{
     public:
         StructureAnalysis(SimulationNVTEnsemble*);
+        StructureAnalysis(MoleculeList*, Box*);
         ~StructureAnalysis();
         
         void virtual compute();

@@ -17,6 +17,8 @@ namespace TetrahedralParticlesInConfinement {
     class BondStructureAnalysis: public StructureAnalysis{
     public:
         BondStructureAnalysis(SimulationNVTEnsemble*, int l=6);
+        BondStructureAnalysis(MoleculeList*, Box*, int l=6);
+        
         ~BondStructureAnalysis();
         
         enum Calc_t {GLOBAL, LOCAL, GLOBALANDLOCAL};
@@ -25,8 +27,8 @@ namespace TetrahedralParticlesInConfinement {
         void setRcutOff(double);
         void setMaxNumberOfNearestNeighbors(unsigned int);
         
-        double getQl();
-        double getWl();
+        double getQl(bool=false);
+        double getWl(bool=false);
         
         
         void compute();
@@ -45,6 +47,7 @@ namespace TetrahedralParticlesInConfinement {
         unsigned int _max_number_of_neighbors;
         bool _useMaxNumberOfNeighbors;
         std::vector<double_unsigned_pair1d_t> _nearest_neighbors;
+        bool _computed;
         
         std::vector<component_list_t> _qlm_i;       //make this a vector also to accommodate several LM values
         Calc_t _mode;
@@ -64,6 +67,9 @@ namespace TetrahedralParticlesInConfinement {
         void _resize();
         void _computeNearestNeighbors();
         void _refresh();
+        void _configure();
+        
+        coord_list_t* _com;
         
     };
 }

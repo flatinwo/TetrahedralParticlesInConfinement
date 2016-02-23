@@ -14,6 +14,10 @@ namespace TetrahedralParticlesInConfinement {
         
     }
     
+    StructureAnalysis::StructureAnalysis(MoleculeList* system, Box* box):_system(system), _box(box){
+        _nmolecules = (unsigned int) _system->molecule_list.size();
+    }
+    
     StructureAnalysis::~StructureAnalysis(){
         
     }

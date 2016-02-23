@@ -152,11 +152,15 @@ namespace TetrahedralParticlesInConfinement {
     
     
     struct UmbrellaSpring{
-        
         UmbrellaSpring():
         order_parameter(0.5),
         spring_constant(10.),
         umbrella_type("density"){
+        }
+        
+        UmbrellaSpring(double op, double k):
+        order_parameter(op),spring_constant(k),
+        umbrella_type("unclear"){
         }
         
         double  order_parameter; //in particular, this corresponds to average extension, assumes harmonic
