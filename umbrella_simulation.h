@@ -47,7 +47,7 @@ namespace TetrahedralParticlesInConfinement {
     protected:
         int _nstepsMC;
         unsigned int _nsampleFrequency;
-        double _E, _restrain_value;
+        double _E, _restrain_value, _goodQ6;
         double _beta;
         bool _equilibrate;
         int _umbrella_type;

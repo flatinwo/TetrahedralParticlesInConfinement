@@ -95,7 +95,6 @@ namespace TetrahedralParticlesInConfinement {
             
             double restrain_param = _NPT->getDensity(); //make this pointer to a function;
             double newQ6 = _q6analysis->getQl(true);
-            double goodQ6 = 0.;
             
             //compute umbrella energy
             double E_new = _umbrella->getUmbrellaEnergy(restrain_param);
@@ -110,7 +109,7 @@ namespace TetrahedralParticlesInConfinement {
                 _E = E_new;
                 saveConfig();
                 _umbrella_info.accepted_moves++;
-                goodQ6 = newQ6;
+                _goodQ6 = newQ6;
             }
             else if (exp(-1.*_beta*(E_new - _E)) < _rng->randDouble()){
                 _NVT->_box = _old_configs._old_box;
@@ -125,7 +124,7 @@ namespace TetrahedralParticlesInConfinement {
                 _old_configs._old_density = restrain_param;
                 saveConfig();
                 _umbrella_info.accepted_moves++;
-                goodQ6 = newQ6;
+                _goodQ6 = newQ6;
             }
             
             if (!_equilibrate && (_steps%_nsampleFrequency==0)) {

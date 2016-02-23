@@ -388,16 +388,11 @@ namespace TetrahedralParticlesInConfinement {
     }
     
     void rescale(Box& box, double s){
-        int dim = (int) box.box_lo.size();
-        
-        assert(dim>0);
-        
+        assert(box.box_lo.size()>0);
         rescale(box.box_lo, s);
         rescale(box.box_hi, s);
         rescale(box.box_period, s);
-        
         //Monte Carlo moves on periodicity
-        
     }
     
     
@@ -428,7 +423,7 @@ namespace TetrahedralParticlesInConfinement {
     }
     
     void rescale2D(Box& box, double s){
-        int dim = (int) box.box_lo.size();
+        unsigned int dim = (unsigned int) box.box_lo.size();
         
         //Box must be non-periodic in 2D
         assert(!box.periodic[2]); //z-direction
@@ -446,9 +441,7 @@ namespace TetrahedralParticlesInConfinement {
         rescale2D(box, s);
         
         int dim = (int) System.molecule_list.size();
-        
         assert(dim>0);
-        
         for (int i=0; i<dim; i++) {
             coord_t x = System.molecule_list[i].colloid_list[0]._center_of_mass;
             x[0] *= s; x[1] *= s;
