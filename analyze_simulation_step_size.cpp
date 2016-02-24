@@ -175,11 +175,10 @@ namespace TetrahedralParticlesInConfinement{
         double old_density, new_density;
         
         std::vector<double> old_delta_move(4,0.);
-        int substeps = 100* ((int) _NVT->getMoleculeList().molecule_list.size());
+        int substeps = 100;
         int nsub_steps = ceil((double) nsteps/ (double) substeps);
         
-        if (nsub_steps < 10)
-            nsub_steps = 10;
+        if (nsub_steps < 10) nsub_steps = 10;
         
         
         while (areAllMoveInfoGood()) {
