@@ -85,15 +85,15 @@ namespace TetrahedralParticlesInConfinement {
         
         assert(nmoleculesplus1 > 2);
         
-        _NVT._E = _NVT.computeEnergy();
-        
         for (int i=0; i<nsteps; i++) {
-            int j = _rng.randInt()%nmoleculesplus1;
-            if (j<nmolecules)
-                _NVT.run();
-            else
-                attemptVolumeMoveOptimized();// attemptVolumeMove();
-            if (i % nmoleculesplus1 == 0)_steps++;
+            for (int k=0; k<nmoleculesplus1; k++) {
+                int j = _rng.randInt()%nmoleculesplus1;
+                if (j<nmolecules)
+                    _NVT.run();
+                else
+                    attemptVolumeMoveOptimized();// attemptVolumeMove();
+            }
+            _steps++;
         }
         
     }
