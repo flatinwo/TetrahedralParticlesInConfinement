@@ -93,7 +93,7 @@ namespace TetrahedralParticlesInConfinement{
     //to be tested
     void Simulation::buildNeighborList(){
         _coords_since_last_neighbor_build = _molecule_list.getFullColloidListCoord();
-        ::TetrahedralParticlesInConfinement::build_neighbor_list(_coords_since_last_neighbor_build, _box, _neighbor_list);
+        ::TetrahedralParticlesInConfinement::build_neighbor_list(_molecule_list.getMoleculeListCoord(), _box, _neighbor_list);
         assert(_molecule_list.full_colloid_list.size() == _neighbor_list.first.size());
     }
     

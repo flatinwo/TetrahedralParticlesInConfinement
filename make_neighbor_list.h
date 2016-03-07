@@ -24,13 +24,15 @@ namespace TetrahedralParticlesInConfinement {
         cut_off_sqd(9.00),
         number_of_pairs(0),
         built(false),
-        full_neighbor_list(true)
+        full_neighbor_list(true),
+        offset(4)
         {}
         
         double cut_off_sqd;
         int number_of_pairs;
         bool built, sorted;
         bool full_neighbor_list;
+        unsigned int offset;
     };
     
     typedef std::vector<int> int_list_t;

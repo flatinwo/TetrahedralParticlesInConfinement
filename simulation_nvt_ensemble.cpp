@@ -567,7 +567,6 @@ namespace TetrahedralParticlesInConfinement{
     
     void SimulationNVTEnsemble::Rotation(int index){
         if (_flag == ROTATEMOLECULE) {
-            //rotate(_molecule_list.molecule_list[_molecule_list.full_colloid_list[index]->molecule_id], _move_info_map[ROTATEMOLECULE]);
             rotate(_molecule_list.molecule_list[_molecule_list.full_colloid_list[index]->molecule_id], _box, _move_info_map[ROTATEMOLECULE]);
         }
         else{
@@ -578,9 +577,6 @@ namespace TetrahedralParticlesInConfinement{
                        _move_info_map[ROTATE]);
             }
             else{
-                //rotate(*_molecule_list.full_colloid_list[index],
-                //       _molecule_list.molecule_list[molecule_id].colloid_list[0],_molecule_list.getBondLength(),
-                //       _move_info_map[ROTATE]);
                 
                 rotate(*_molecule_list.full_colloid_list[index],
                        _molecule_list.molecule_list[molecule_id].colloid_list[0],_molecule_list.getBondLength(), _box,
