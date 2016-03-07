@@ -162,8 +162,8 @@ namespace TetrahedralParticlesInConfinement {
         
         if (!neighbor_info.built || neighbor_info.full_neighbor_list) {//or rebuild frequency
             neighbor_info.full_neighbor_list = false;
-            coord_list_t x = molecule_list.getMoleculeListCoord();
-            build_neighbor_list(x, box, neighbor_list, neighbor_info);
+            //coord_list_t x = molecule_list.getMoleculeListCoord();
+            build_neighbor_list(molecule_list.getMoleculeListCoord(), box, neighbor_list, neighbor_info);
         }
         
         int n = (int) molecule_list.molecule_list.size();
@@ -189,8 +189,8 @@ namespace TetrahedralParticlesInConfinement {
         
         if (!neighbor_info.built || !neighbor_info.full_neighbor_list) {//or rebuild frequency
             neighbor_info.full_neighbor_list = true;
-            coord_list_t x = molecule_list.getMoleculeListCoord();
-            build_neighbor_list(x, box, neighbor_list, neighbor_info);
+            //coord_list_t x = molecule_list.getMoleculeListCoord();
+            build_neighbor_list(molecule_list.getMoleculeListCoord(), box, neighbor_list, neighbor_info);
         }
         
         int n = (int) molecule_list.molecule_list.size();
@@ -217,8 +217,8 @@ namespace TetrahedralParticlesInConfinement {
         
         if (!neighbor_info.built || neighbor_info.full_neighbor_list) {//or rebuild frequency
             neighbor_info.full_neighbor_list = false;
-            coord_list_t x = molecule_list.getFullColloidListCoord();
-            build_neighbor_list(x, box, neighbor_list, neighbor_info);
+            //coord_list_t x = molecule_list.getFullColloidListCoord();
+            build_neighbor_list(molecule_list.getMoleculeListCoord(), box, neighbor_list, neighbor_info);
         }
         
         int n = (int) molecule_list.molecule_list.size();
@@ -312,8 +312,8 @@ namespace TetrahedralParticlesInConfinement {
         
         if (!neighbor_info.built || !neighbor_info.full_neighbor_list) {//or rebuild frequency
             neighbor_info.full_neighbor_list = true;
-            coord_list_t x = molecule_list.getFullColloidListCoord();
-            build_neighbor_list(x, box, neighbor_list, neighbor_info);
+            //coord_list_t x = molecule_list.getFullColloidListCoord();
+            build_neighbor_list(molecule_list.getMoleculeListCoord(), box, neighbor_list, neighbor_info);
         }
         
         int n = (int) neighbor_list.size();
@@ -343,8 +343,8 @@ namespace TetrahedralParticlesInConfinement {
         
         if (!neighbor_info.built || !neighbor_info.full_neighbor_list) {//or rebuild frequency
             neighbor_info.full_neighbor_list = true;
-            coord_list_t x = molecule_list.getFullColloidListCoord();
-            build_neighbor_list(x, box, neighbor_list, neighbor_info);
+            //coord_list_t x = molecule_list.getFullColloidListCoord();
+            build_neighbor_list(molecule_list.getMoleculeListCoord(), box, neighbor_list, neighbor_info);
         }
         
         unsigned int n = (unsigned int) neighbor_list.size();

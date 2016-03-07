@@ -35,9 +35,10 @@ namespace TetrahedralParticlesInConfinement {
             for (int j=i+1; j<dim; j++) {
                 rmagsqd = distancesq(x[i], x[j], box);
                 if (rmagsqd < info.cut_off_sqd) {
-                    neighbor_i.push_back(j);
+                    int nn = j*(info.offset + 1);
+                    neighbor_i.push_back(nn);
                     for (unsigned int k=0; k<info.offset; k++) {
-                        neighbor_i.push_back(j+k+1);
+                        neighbor_i.push_back(++nn);
                     }
                     info.number_of_pairs++;
                 }
