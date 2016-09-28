@@ -50,6 +50,25 @@ namespace TetrahedralParticlesInConfinement{
     }
     
     
+    void distancesqandvec(coord_t& x1, coord_t& x2, Box& box, double_coord_t& result){
+        unsigned long dim = x1.size();
+        
+        if (dim != x2.size())
+            assert(0);
+        
+        assert(result.second.size() == x2.size());
+        
+        double sum = 0.0,dx=0.;
+        
+        for (unsigned int j=0; j<dim; j++){
+            dx = x1[j]-x2[j];
+            pbc(dx,box.box_period[j],box.periodic[j]);
+            sum += dx*dx;
+            result.second[j] = dx;
+        }
+        result.first = sum;
+    }
+    
     double distancesq(coord_t& x1, coord_t& x2, coord_t& box_period, bool_list_t& periodic){
         
         unsigned long dim = x1.size();

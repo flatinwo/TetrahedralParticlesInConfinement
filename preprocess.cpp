@@ -213,7 +213,7 @@ namespace TetrahedralParticlesInConfinement {
             
             double unit_vector[3];
             if (norm == 0.0) {
-                unit_vector[0] = unit_vector[i] = unit_vector[2] = 0.0;
+                unit_vector[0] = unit_vector[1] = unit_vector[2] = 0.0;
             }
             else {
                 unit_vector[0] = x[i][0] / norm;

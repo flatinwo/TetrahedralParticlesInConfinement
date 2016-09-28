@@ -13,6 +13,7 @@
 #include "struct_def.h"
 #include "molecule_list.h"
 #include "make_neighbor_list.h"
+#include "cell_list.hpp"
 
 //note: can write such that you store bound or unbound with each pair
 //use a bool flag
@@ -27,7 +28,9 @@ namespace TetrahedralParticlesInConfinement {
         overlap_criteria(1.00),
         cut_off_criteria(1.251*1.251),
         cut_off_orientation(0.95)
-        {}
+        {
+            result.second = coord_t(3,0.);
+        }
         
         bool overlap;
         double overlap_probability;
@@ -35,7 +38,7 @@ namespace TetrahedralParticlesInConfinement {
         double overlap_criteria;
         double cut_off_criteria;
         double cut_off_orientation;
-        
+        double_coord_t result;
     };
     
     
@@ -60,9 +63,12 @@ namespace TetrahedralParticlesInConfinement {
     double compute_pair_energy(MoleculeList& molecule_list,
                                Box& box, pair_info& pair_info,
                                NeighborList_t& neighbor_list,
-                               neighbor_list_info& neighbor_info);//make template for file, question for Ladapo vector of references or reference of vectors
+                               neighbor_list_info& neighbor_info);
     
-    
+    double compute_pair_energy(MoleculeList& molecule_list,
+                               Box&,
+                               pair_info& pair_info,
+                               CellList& cell_list);
     
     
     //can use stl pair to combine NeighborList_t and neighbor_list_info
@@ -86,12 +92,25 @@ namespace TetrahedralParticlesInConfinement {
                                NeighborList_t& neighbor_list,
                                neighbor_list_info& neighbor_info);
     
+    double compute_pair_energy(int index,
+                               MoleculeList& molecule_list,
+                               Box& box,
+                               pair_info& pair_info,
+                               CellList& cell_list);
+    
+    double compute_pair_molecule_energy(int index,
+                                        MoleculeList& molecule_list,
+                                        Box& box,
+                                        pair_info& pair_info,
+                                        CellList& cell_list);
+    
     double compute_pair_molecule_energy_full(int index,
                                     MoleculeList& molecule_list,
                                     Box& box,
                                     pair_info& pair_info,
                                     NeighborList_t& neighbor_list,
                                     neighbor_list_info& neighbor_info);
+    
     
     
     // energy computes without neighbor lists
@@ -104,6 +123,7 @@ namespace TetrahedralParticlesInConfinement {
                                MoleculeList& molecule_list,
                                Box& box,
                                pair_info& pair_info);
+    
     
     double compute_pair_molecule_energy(int index,
                                         MoleculeList& molecule_list,

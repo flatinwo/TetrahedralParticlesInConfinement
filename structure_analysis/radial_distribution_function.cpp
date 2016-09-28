@@ -43,10 +43,10 @@ namespace TetrahedralParticlesInConfinement {
             for (unsigned int j=i+1; j<natoms; j++) {
                 if (_system->full_colloid_list[i]->molecule_id == _system->full_colloid_list[j]->molecule_id) continue;
                 
-                double_coord_t temp = distancesqandvec(_system->full_colloid_list[j]->_center_of_mass,
+                distancesqandvec(_system->full_colloid_list[j]->_center_of_mass,
                                         _system->full_colloid_list[i]->_center_of_mass,
-                                        *_box);
-                double rsq = temp.first;
+                                        *_box, _temp);
+                double rsq = _temp.first;
                 
                 
                 if (rsq < _rmax) {
@@ -62,7 +62,7 @@ namespace TetrahedralParticlesInConfinement {
                     }
                     if (_rdf_flags[PATCHPATCHBOND]) {
                         //if (_system->full_colloid_list[i]->boundto == j) _Hists[PATCHPATCHBOND].insert(r,2.0);
-                        if (test_orientations(_system->full_colloid_list[i]->orientation, _system->full_colloid_list[j]->orientation, temp, _info)) _Hists[PATCHPATCHBOND].insert(r,2.0);
+                        if (test_orientations(_system->full_colloid_list[i]->orientation, _system->full_colloid_list[j]->orientation, _temp, _info)) _Hists[PATCHPATCHBOND].insert(r,2.0);
                         //if (dot_product(_system->full_colloid_list[i]->_center_of_mass, _system->full_colloid_list[j]->_center_of_mass) > 0.95) _Hists[PATCHPATCHBOND].insert(r,2.0);
                     }
                 }
@@ -77,6 +77,7 @@ namespace TetrahedralParticlesInConfinement {
         _rmax *= 0.5;
         _rmax *= _rmax;
         
+        _temp.second = coord_t(3,0.);
         
         //set bin size
         for (unsigned int i=0; i<4; i++) {

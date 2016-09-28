@@ -32,6 +32,7 @@ namespace TetrahedralParticlesInConfinement {
         
     protected:
         bool_list_t _rdf_flags;
+        double_coord_t _temp;
         struct _normalize_info{
             _normalize_info():
             _same_type(false),

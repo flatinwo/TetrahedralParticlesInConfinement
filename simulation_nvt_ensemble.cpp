@@ -21,6 +21,7 @@
 
 //try low density NVT calculation... are there any failures?
 //also fix box to always be from zeros
+//write with Xdr library
 
 //need to assess rotation move
 
@@ -277,10 +278,16 @@ namespace TetrahedralParticlesInConfinement{
     double SimulationNVTEnsemble::computeEnergy(int index){
         _pair_info.overlap = false;
         
-        double energy = compute_pair_energy_full(index, _molecule_list,
+        double energy = 0.;
+        
+        if (_cell_list == nullptr) energy = compute_pair_energy_full(index, _molecule_list,
                                                  _box, _pair_info,
                                                  _neighbor_list.first,
                                                  _neighbor_list.second);
+        else
+            energy = compute_pair_energy(index, _molecule_list, _box, _pair_info, *_cell_list);
+        
+        
         
         if  (confinement == NULL)
             return energy;
@@ -295,10 +302,15 @@ namespace TetrahedralParticlesInConfinement{
     //can use function pointer here
     double SimulationNVTEnsemble::computeEnergy(){
         _pair_info.overlap = false;
-        double energy = compute_pair_energy_full(_molecule_list,
+        double energy = 0.;
+        
+        if (_cell_list == nullptr) energy = compute_pair_energy_full(_molecule_list,
                                                 _box, _pair_info,
                                                 _neighbor_list.first,
                                                 _neighbor_list.second);
+        else
+            energy = compute_pair_energy(_molecule_list, _box, _pair_info, *_cell_list);
+            
         if  (confinement == NULL)
             return energy;
         else
@@ -382,7 +394,10 @@ namespace TetrahedralParticlesInConfinement{
     double SimulationNVTEnsemble::computeMoleculeEnergy(int index){
         _pair_info.overlap = false;
         assert(index < (int)_molecule_list.molecule_list.size());
-        double energy = compute_pair_molecule_energy_full(index, _molecule_list, _box, _pair_info,_neighbor_list.first, _neighbor_list.second);
+        double energy = 0.;
+        if (_cell_list == nullptr) energy = compute_pair_molecule_energy_full(index, _molecule_list, _box, _pair_info,_neighbor_list.first, _neighbor_list.second);
+        else
+            energy = compute_pair_molecule_energy(index, _molecule_list, _box, _pair_info, *_cell_list);
         
         if (confinement == NULL) {
             return energy;
@@ -599,10 +614,8 @@ namespace TetrahedralParticlesInConfinement{
         if (_flag == TRANSLATE){
             int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
             _old_molecule = _molecule_list.molecule_list[molecule_id];
-            //_old_config.push_back(_molecule_list.full_colloid_list[index]->_center_of_mass);
 
         }
-            //_old_config.push_back(_molecule_list.full_colloid_list[index]->_center_of_mass);
         else if (_flag == ROTATE){
             _old_colloid = *(_molecule_list.full_colloid_list[index]);
             if (_core_flag)
@@ -622,8 +635,6 @@ namespace TetrahedralParticlesInConfinement{
             //assert(_old_config.size()==1);
             int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
             _molecule_list.molecule_list[molecule_id] = _old_molecule;
-           // int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
-           // _molecule_list.molecule_list[molecule_id].setCenterOfMass(_old_config[0],_box);
         }
         else if (_flag == ROTATE){
             int molecule_id = _molecule_list.full_colloid_list[index]->molecule_id;
@@ -749,8 +760,8 @@ namespace TetrahedralParticlesInConfinement{
         os_energy << std::setprecision(4);
         os_energy << "log_energy_NVT_T="<<getTemperature()<<"_density"<<getDensity()<<".txt";
         
-        _ofile.open(os.str().c_str(), std::ios::app);
-        _ofile_energy.open(os_energy.str().c_str(), std::ios::app);
+        _ofile.open(os.str().c_str(), std::ios::app | std::ios::binary);
+        _ofile_energy.open(os_energy.str().c_str(), std::ios::app | std::ios::binary);
         
         if (_ofile.fail() || _ofile_energy.fail()) {
             std::cerr << "ERROR: failed to open NVT files\n";

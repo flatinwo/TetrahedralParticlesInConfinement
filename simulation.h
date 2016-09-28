@@ -16,6 +16,7 @@
 #include "random_number_generator.h"
 #include "pair.h"
 #include "io.h"
+#include "cell_list.hpp"
 #include <fstream>
 
 namespace TetrahedralParticlesInConfinement {
@@ -35,6 +36,7 @@ namespace TetrahedralParticlesInConfinement {
         
         void setPairInfo(pair_info& info);
         void setNeighborInfo(neighbor_list_info& info);
+        void setCellList(CellList& info);
         void setNMovesPerCycle(double);
         void resetSteps();
         
@@ -55,6 +57,7 @@ namespace TetrahedralParticlesInConfinement {
         pair_info& getPairInfo();
         
         void buildNeighborList();
+        void buildCellList();
         
         virtual double computeEnergy(int);
         virtual double computeEnergy();
@@ -73,7 +76,10 @@ namespace TetrahedralParticlesInConfinement {
         MoleculeList& _molecule_list;
         Box&         _box;
         TetramerPatchyColloid _old_colloid_coords;
+        
         NeighborList_with_info_t _neighbor_list;
+        CellList*    _cell_list;
+        
         pair_info _pair_info;
         RandomNumberGenerator& _rng;
         coord_list_t _coords_since_last_neighbor_build;

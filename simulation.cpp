@@ -21,6 +21,7 @@ namespace TetrahedralParticlesInConfinement{
         _max_displacement = 0.;
         _delta_skin = 0.5*(sqrt(_neighbor_list.second.cut_off_sqd) - sqrt(_pair_info.cut_off_criteria));
         confinement = NULL;
+        _cell_list = nullptr;
         buildNeighborList();
     }
     
@@ -66,6 +67,11 @@ namespace TetrahedralParticlesInConfinement{
     void Simulation::resetSteps(){
         _steps = 0;
     }
+    
+    void Simulation::setCellList(CellList& info){
+        _cell_list = &info;
+    }
+    
 #pragma mark GETS
     
     double Simulation::getAcceptanceProbability(){
@@ -92,13 +98,28 @@ namespace TetrahedralParticlesInConfinement{
     }
     //to be tested
     void Simulation::buildNeighborList(){
+        if (_cell_list != nullptr) {
+            buildCellList();
+            return;
+        }
         _coords_since_last_neighbor_build = _molecule_list.getFullColloidListCoord();
         ::TetrahedralParticlesInConfinement::build_neighbor_list(_molecule_list.getMoleculeListCoord(), _box, _neighbor_list);
         assert(_molecule_list.full_colloid_list.size() == _neighbor_list.first.size());
     }
     
+    void Simulation::buildCellList(){
+        //assert(_cell_list != nullptr);
+        _cell_list->clear();
+        _cell_list->setBox(_box);
+        _cell_list->setInteractionRange(sqrt(_pair_info.cut_off_criteria));
+        _cell_list->setNeighborStyle(CellList::FULL);
+        _coords_since_last_neighbor_build = _molecule_list.getFullColloidListCoord();
+        for (unsigned int i=0; i<_coords_since_last_neighbor_build.size(); i++) _cell_list->insert(i, _coords_since_last_neighbor_build[i]);
+    }
+    
+    
     double Simulation::computeEnergy(int index){
-        assert(index >0);
+        assert(index > 0);
         assert(0);
         return 0;
         

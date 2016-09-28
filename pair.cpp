@@ -25,9 +25,8 @@ namespace TetrahedralParticlesInConfinement {
         
         //std::cout << colloid1.molecule_id << "\t" << colloid2.molecule_id << std::endl;
         
-        double_coord_t temp = distancesqandvec(colloid2._center_of_mass, colloid1._center_of_mass, box); //order matters
-        double rsq = temp.first;
-        coord_t dx = temp.second;
+        distancesqandvec(colloid2._center_of_mass, colloid1._center_of_mass, box, info.result); //order matters
+        double rsq = info.result.first;
         
         if (rsq <= info.overlap_criteria) {
             info.overlap = true;
@@ -43,7 +42,7 @@ namespace TetrahedralParticlesInConfinement {
              return 0.;
                 
             info.overlap = false;
-            return (-1.*info.energy_scale*compute_orientations(colloid1,colloid2,temp,info));
+            return (-1.*info.energy_scale*compute_orientations(colloid1,colloid2,info.result,info));
         }
     }
     
@@ -94,18 +93,15 @@ namespace TetrahedralParticlesInConfinement {
         
         double alpha0,beta0;
         
-        coord_t r1 = colloid1.orientation;
-        coord_t r2 = colloid2.orientation;
         
         double rsq = pair_data.first;
-        coord_t dx = pair_data.second;
         
         double cut_off_criteria = sqrt(rsq)*info.cut_off_orientation;
         
         alpha0 = beta0 = 0.;
-        for (unsigned int i=0; i<r1.size(); i++) {
-            alpha0 += r1[i]*dx[i];
-            beta0  -= r2[i]*dx[i];
+        for (unsigned int i=0; i<colloid1.orientation.size(); i++) {
+            alpha0 += colloid1.orientation[i]*pair_data.second[i];
+            beta0  -= colloid2.orientation[i]*pair_data.second[i];
         }
         
         if ((alpha0 >= cut_off_criteria) && (beta0 >= cut_off_criteria) ) {
@@ -218,15 +214,17 @@ namespace TetrahedralParticlesInConfinement {
         if (!neighbor_info.built || neighbor_info.full_neighbor_list) {//or rebuild frequency
             neighbor_info.full_neighbor_list = false;
             //coord_list_t x = molecule_list.getFullColloidListCoord();
-            build_neighbor_list(molecule_list.getMoleculeListCoord(), box, neighbor_list, neighbor_info);
+            build_neighbor_list(molecule_list.getMoleculeListCoord(), box, neighbor_list, neighbor_info); //neighbor list of all colloids is built with
+                                                                                                          //based on only molecules... EZ
         }
         
         int n = (int) molecule_list.molecule_list.size();
         double e = 0.;
+
         
         for (unsigned int i=0; i<neighbor_list.size(); i++) {
             for (unsigned int j=0; j<neighbor_list[i].size(); j++) {
-                
+                //all colloidal particles
                 e += compute_pair_energy(*(molecule_list.full_colloid_list[i]),*(molecule_list.full_colloid_list[neighbor_list[i][j]]),box, pair_info);
                 
                 if (pair_info.overlap) {
@@ -240,6 +238,35 @@ namespace TetrahedralParticlesInConfinement {
         return e;
         
     }
+    
+    double compute_pair_energy(MoleculeList& molecule_list,
+                               Box& box,
+                               pair_info& pair_info,
+                               CellList& cell_list){
+        double e = 0.;
+        if (!cell_list.good()) {
+            cell_list.clear();
+            cell_list.setBox(box);
+            cell_list.setInteractionRange(sqrt(pair_info.cut_off_criteria));
+            cell_list.setNeighborStyle(CellList::HALF);
+            coord_list_t x = molecule_list.getFullColloidListCoord();
+            for (unsigned int i=0; i<x.size(); i++) cell_list.insert(i, x[i]);
+        }
+        
+        if (cell_list.good()) {
+            cell_list.resetIterator();
+            for (; ; ) {
+                std::pair<int, int> p = cell_list.nextPair();
+                if (cell_list.end()) break;
+                e += compute_pair_energy(*(molecule_list.full_colloid_list[p.first]), *(molecule_list.full_colloid_list[p.second]), box, pair_info);
+                if (pair_info.overlap) return ((double) BIG_NUM);
+            }
+
+        }
+        
+        return e;
+    }
+    
     
     double compute_pair_energy_wall(int index, MoleculeList& molecule_list,
                                     Box& box, Wall& wall, pair_info& info){
@@ -334,6 +361,33 @@ namespace TetrahedralParticlesInConfinement {
         
     }
     
+    double compute_pair_energy(int index,
+                               MoleculeList& molecule_list,
+                               Box& box,
+                               pair_info& pair_info,
+                               CellList& cell_list){
+        double e=0;
+        if (!cell_list.good() || cell_list.getNeighborStyle() != CellList::FULL) {
+            cell_list.clear();
+            cell_list.setBox(box);
+            cell_list.setInteractionRange(sqrt(pair_info.cut_off_criteria));
+            cell_list.setNeighborStyle(CellList::FULL);
+            coord_list_t x = molecule_list.getFullColloidListCoord();
+            for (unsigned int i=0; i<x.size(); i++) cell_list.insert(i, x[i]);
+        }
+        
+        if (cell_list.good()) {
+            std::vector<int> nbrs;
+            cell_list.getNeighborsOf(index, nbrs);
+            for (unsigned int i=0; i<nbrs.size() ; i++ ) {
+                e += compute_pair_energy(*(molecule_list.full_colloid_list[index]), *(molecule_list.full_colloid_list[nbrs[i]]), box, pair_info);
+                if (pair_info.overlap) return ((double) BIG_NUM);
+            }
+            
+        }
+        return e;
+    }
+    
     double compute_pair_molecule_energy_full(int index0,
                                     MoleculeList& molecule_list,
                                     Box& box,
@@ -362,10 +416,41 @@ namespace TetrahedralParticlesInConfinement {
             }
         }
         
-
         //neighbor_info.built = false;
         return e;
         
+    }
+    
+    double compute_pair_molecule_energy(int index0,
+                                        MoleculeList& molecule_list,
+                                        Box& box,
+                                        pair_info& pair_info,
+                                        CellList& cell_list){
+        double e=0.;
+        if (!cell_list.good() || cell_list.getNeighborStyle() != CellList::FULL) {
+            cell_list.clear();
+            cell_list.setBox(box);
+            cell_list.setInteractionRange(sqrt(pair_info.cut_off_criteria));
+            cell_list.setNeighborStyle(CellList::FULL);
+            coord_list_t x = molecule_list.getFullColloidListCoord();
+            for (unsigned int i=0; i<x.size(); i++) cell_list.insert(i, x[i]);
+        }
+        
+        unsigned int dim = (unsigned int) molecule_list.molecule_list[index0].colloid_list.size();
+        
+        if (cell_list.good()) {
+            for (unsigned int ii=0; ii<dim; ii++) {
+                unsigned int index = dim*index0 + ii;
+                std::vector<int> nbrs;
+                cell_list.getNeighborsOf(index, nbrs);
+                for (unsigned int i=0; i<nbrs.size() ; i++ ) {
+                    e += compute_pair_energy(*(molecule_list.full_colloid_list[index]), *(molecule_list.full_colloid_list[nbrs[i]]), box, pair_info);
+                    if (pair_info.overlap) return ((double) BIG_NUM);
+                }
+            }
+            
+        }
+        return e;
     }
     
     

@@ -27,7 +27,10 @@ namespace TetrahedralParticlesInConfinement {
         move_probability(1.0),
         accepted_moves(0),
         rejected_moves(0),
-        total_moves(0){}
+        total_moves(0){
+            result.first = coord_t(4,0.); //quaternion
+            result.second = coord_list_t(3,coord_t(3,0.)); //Rotation matrix
+        }
 
         double delta_move; // step size of move
         double delta_move_max;
@@ -35,6 +38,7 @@ namespace TetrahedralParticlesInConfinement {
         unsigned long long int accepted_moves;
         unsigned long long int rejected_moves;
         unsigned long long int total_moves;
+        coord_pair result;
  
                
         void compute_move_probability();
@@ -71,6 +75,7 @@ namespace TetrahedralParticlesInConfinement {
     
     void rotate(int, TetramerPatchyColloid&, move_info&);
     void rotate(Colloid&, coord_list_t&, move_info&);
+    void generateQuaternionPair(move_info& rotate_info, coord_pair& rotate);
     
     void rescale(coord_t& x, double s);
     void rescale(coord_list_t& x, double s);

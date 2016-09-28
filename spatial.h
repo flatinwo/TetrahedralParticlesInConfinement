@@ -26,6 +26,9 @@ namespace TetrahedralParticlesInConfinement{
     //the squared distance and vector distance between two particles in a box
     double_coord_t distancesqandvec(coord_t& x1, coord_t& x2, Box&);
     
+    //the squared distance and vector distance between two particles in a box
+    void distancesqandvec(coord_t& x1, coord_t& x2, Box&, double_coord_t& temp);
+    
     //the distance between two particles
     double distance(coord_t& x1, coord_t&x2);
     
