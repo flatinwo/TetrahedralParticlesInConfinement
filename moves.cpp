@@ -506,7 +506,7 @@ namespace TetrahedralParticlesInConfinement {
             rotate.second[1]={2.*(p1*p2 + p0*p3),
                 p0*p0 - p1*p1 + p2*p2 - p3*p3,2.*(p2*p3 - p0*p1)};
             
-            rotate.second[3]={2.*(p1*p3 - p0*p2),2.*(p2*p3 + p0*p1),
+            rotate.second[2]={2.*(p1*p3 - p0*p2),2.*(p2*p3 + p0*p1),
                 p0*p0 - p1*p1 - p2*p2 + p3*p3};
             
         }
